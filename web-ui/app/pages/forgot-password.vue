@@ -1,0 +1,58 @@
+<script setup lang="ts">
+import * as z from "zod";
+import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
+
+definePageMeta({
+  layout: "public",
+});
+
+const fields: AuthFormField[] = [
+  {
+    name: "email",
+    type: "email",
+    label: "Email",
+    placeholder: "Enter your email",
+    required: true,
+  },
+  {
+    name: "remember",
+    label: "Remember me",
+    type: "checkbox",
+  },
+];
+
+const schema = z.object({
+  email: z.email("Invalid email"),
+  password: z
+    .string("Password is required")
+    .min(4, "Must be at least 4 characters"),
+});
+
+type Schema = z.output<typeof schema>;
+
+function onSubmit(payload: FormSubmitEvent<Schema>) {
+  console.log("Submitted", payload);
+}
+</script>
+
+<template>
+  <div class="flex flex-col items-center justify-center gap-4 p-4">
+    <UPageCard class="w-full max-w-md">
+      <UAuthForm
+        :schema="schema"
+        :fields="fields"
+        title="Forgot Password?"
+        icon="i-lucide-rotate-ccw-key"
+        @submit="onSubmit"
+      >
+        <template #footer>
+          Navigate to
+          <ULink to="/sign-in" class="text-primary font-medium">Sign in</ULink>.
+        </template>
+        <template #validation>
+          <UAlert color="error" icon="i-lucide-info" title="Error signing up" />
+        </template>
+      </UAuthForm>
+    </UPageCard>
+  </div>
+</template>
