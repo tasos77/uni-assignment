@@ -19,6 +19,7 @@
       <UCheckbox label="BakeryBite" />
       <UCheckbox label="PizzaWorld" />
       <UCheckbox label="CoffeCentral" />
+      <UCheckbox label="BarHub" />
     </div>
   </div>
 </template>
