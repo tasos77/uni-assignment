@@ -156,3 +156,7 @@ components.d.ts
 
 # Misc
 .DS_Store
+
+# Prisma
+api/prisma/generated
+api/prisma/migrations

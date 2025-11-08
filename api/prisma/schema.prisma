@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client"
+  output = "./generated"
+  runtime = "bun"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  email     String @id
+  password  String
+  claimedGifts Gift[] @relation("ClaimedGifts") // optional relation many to many (ensure the gift independance)
+}
+
+model Gift {
+  id               String   @id @default(uuid()) // primary key and unique by default
+  title            String
+  category         String
+  description      String
+  terms            String
+  brandTitle       String
+  brandLogoUrl     String
+  imageUrl         String
+  type             String
+  channel          String
+  claimedBy        User[] @relation("ClaimedGifts") // relation to users
+}
