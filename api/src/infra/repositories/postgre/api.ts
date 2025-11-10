@@ -1,5 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { type ApplicationError, errors } from '../../../core/entities/errors/entity'
+import type { Gift } from '../../../core/entities/gift/entity'
+import type { User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
 export const api = (db: PrismaClient, logger: Logger) => {
@@ -19,7 +21,33 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const createGifts = async (gifts: any[]): Promise<boolean | ApplicationError> => {
+  const searchUserBasedOnCredentials = async (user: User): Promise<boolean | ApplicationError> => {
+    try {
+      const result = await db.user.findUnique({
+        where: {
+          email: user.email,
+          password: user.password
+        }
+      })
+      if (!result) {
+        return errors.EntityNotFound('User not found', {
+          query: `email:${user.email},password:${user.password}`,
+          system: 'PostgreSQL'
+        })
+      }
+      return true
+    } catch (error) {
+      return errors.Service('Error getting user', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Search User',
+        reason: 'Failed to find user',
+        value: (error as Error).message
+      })
+    }
+  }
+
+  const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     try {
       await db.gift.createMany({
         data: gifts
@@ -38,6 +66,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
 
   return {
     checkAccess,
-    createGifts
+    createGifts,
+    searchUserBasedOnCredentials
   }
 }

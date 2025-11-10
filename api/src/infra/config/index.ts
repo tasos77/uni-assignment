@@ -4,7 +4,11 @@ const config: Config = {
   server: {
     port: process.env.PORT ?? '3000'
   },
-  postgreSql: process.env.DATABASE_URL ?? 'postgresql://admin:admin@localhost:5432/db?schema=public'
+  jwt: {
+    jwtSecret: process.env.JWT_SECRET,
+    alg: process.env.ALG
+  },
+  postgreSql: process.env.DATABASE_URL
 }
 
 export const conf = configSchema.parse(config)

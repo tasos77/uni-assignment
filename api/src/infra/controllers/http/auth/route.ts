@@ -1,10 +1,17 @@
 import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
+import { isApplicationError } from '../../../../core/entities/errors/entity'
+import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
 import { MatchUserRequestBodySchema, Sign_In_Up_RequestBodySchema } from '../schemas/requests'
 import { BadRequestResponseSchema, InternalServerErrorResponseSchema, OneTimeTokenResponseSchema, Sign_In_Up_ResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
-export const make = (): Hono => {
+interface AuthRouteDeps {
+  authUsecase: AuthUsecase
+}
+
+export const make = (deps: AuthRouteDeps): Hono => {
   const route = new Hono()
+  const { authUsecase } = deps
 
   route.post(
     '/sign-in',
@@ -49,10 +56,14 @@ export const make = (): Hono => {
     validator('json', Sign_In_Up_RequestBodySchema),
     async (c) => {
       const { email, password } = await c.req.json()
-      console.log(email, password)
-
+      const result = await authUsecase.authenticateUser({ email, password })
+      if (isApplicationError(result)) {
+        return c.json({
+          error: result.message
+        })
+      }
       return c.json({
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cQ.signature'
+        token: result
       })
     }
   )

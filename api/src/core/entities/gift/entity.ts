@@ -11,3 +11,5 @@ export const GiftSchema = z.object({
   type: z.string(),
   channel: z.string()
 })
+
+export type Gift = z.infer<typeof GiftSchema>
