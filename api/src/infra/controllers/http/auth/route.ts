@@ -9,6 +9,7 @@ export const make = (): Hono => {
   route.post(
     '/sign-in',
     describeRoute({
+      summary: 'Sign in',
       description: 'Sign in with email and password',
       responses: {
         200: {
@@ -59,6 +60,7 @@ export const make = (): Hono => {
   route.post(
     '/sign-up',
     describeRoute({
+      summary: 'Sign up',
       description: 'Sign up with email and password',
       responses: {
         201: {
@@ -101,6 +103,7 @@ export const make = (): Hono => {
   route.post(
     '/match-user',
     describeRoute({
+      summary: 'Match user',
       description: 'Match user with email',
       responses: {
         200: {
@@ -143,6 +146,7 @@ export const make = (): Hono => {
   route.post(
     '/update-password',
     describeRoute({
+      summary: 'Update Pass',
       description: 'Update user password',
       responses: {
         200: {

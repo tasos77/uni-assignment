@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { describeRoute, resolver } from 'hono-openapi'
-import { GiftsResponseSchema } from '../schemas/responses'
+import { GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
 export const make = () => {
   const route = new Hono()
@@ -12,8 +12,28 @@ export const make = () => {
       description: 'Get all gifts from the database',
       responses: {
         200: {
-          description: 'OK',
-          content: resolver(GiftsResponseSchema)
+          description: 'Returns a list of gifts',
+          content: {
+            'application/json': {
+              schema: resolver(GiftsResponseSchema)
+            }
+          }
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: resolver(UnauthorizedResponseSchema)
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: resolver(InternalServerErrorResponseSchema)
+            }
+          }
         }
       }
     }),
