@@ -1,30 +1,30 @@
-import { withAccelerate } from '@prisma/extension-accelerate';
-import { PrismaClient } from "../../../../prisma/generated/client";
-import type { PostgreRepository } from "../../../core/repositories/postgre/repository";
-import type { Logger } from "../../utils/logger";
-import { api } from "./api";
+import { withAccelerate } from '@prisma/extension-accelerate'
+import { PrismaClient } from '../../../../prisma/generated/client'
+import type { ApplicationError } from '../../../core/entities/errors/entity'
+import type { PostgreRepository } from '../../../core/repositories/postgre/repository'
+import type { Logger } from '../../utils/logger'
+import { api } from './api'
 
 export interface PostgreRepositoryDeps {
   logger: Logger
 }
 
-export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreRepository> =>{
-  const { logger } = deps;
+export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreRepository> => {
+  const { logger } = deps
 
   const client = new PrismaClient().$extends(withAccelerate())
-  const db = api(client,logger)
+  const db = api(client, logger)
 
+  const access = await db.checkAccess()
+  if (access instanceof Error) {
+    throw new Error('Access denied')
+  }
 
-    const access = await db.checkAccess()
-    if (access instanceof Error) {
-      throw new Error('Access denied')
-    }
+  const createGifts = (gifts: any[]): Promise<boolean | ApplicationError> => {
+    return db.createGifts(gifts)
+  }
 
-    const createGifts = (gifts : any[]): Promise<boolean| Error> =>{
-      return db.createGifts(gifts)
-    }
-
-    return {
-      createGifts
-    }
+  return {
+    createGifts
+  }
 }

@@ -1,4 +1,4 @@
-import { configSchema, type Config } from './schema'
+import { type Config, configSchema } from './schema'
 
 const config: Config = {
   server: {

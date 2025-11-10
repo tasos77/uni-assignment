@@ -1,9 +1,9 @@
-import { withAccelerate } from '@prisma/extension-accelerate';
-import { $ } from 'bun';
-import { PrismaClient } from "../prisma/generated/client";
-import { logger } from '../src/infra/utils/logger';
+import { withAccelerate } from '@prisma/extension-accelerate'
+import { $ } from 'bun'
+import { PrismaClient } from '../prisma/generated/client'
+import { logger } from '../src/infra/utils/logger'
 
-const isDatabaseEmpty = async (client:any): Promise<boolean> => {
+const isDatabaseEmpty = async (client: any): Promise<boolean> => {
   const tablesToCheck = [client.gift.count(), client.user.count()]
   const counts = await Promise.all(tablesToCheck)
   return counts.every((count) => count === 0)
