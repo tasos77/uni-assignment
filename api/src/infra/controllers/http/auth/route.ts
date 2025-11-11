@@ -103,10 +103,14 @@ export const make = (deps: AuthRouteDeps): Hono => {
     validator('json', Sign_In_Up_RequestBodySchema),
     async (c) => {
       const { email, password } = await c.req.json()
-      console.log(email, password)
-
+      const result = await authUsecase.createUser({ email, password })
+      if (isApplicationError(result)) {
+        return c.json({
+          error: result.message
+        })
+      }
       return c.json({
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cQ.signature'
+        token: result
       })
     }
   )

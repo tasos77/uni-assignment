@@ -1,11 +1,20 @@
 import { $ } from 'bun'
 import type { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
+import type { PostgreRepository } from './core/repositories/postgre/repository'
+import type { DBManagerService } from './core/services/dbManager/service'
+import * as dbmService from './core/services/dbManager/service'
+import type { TokenManagerService } from './core/services/tokenManager/service'
+import type { AuthUsecase } from './core/usecases/auth/usecase'
+import * as auUsecase from './core/usecases/auth/usecase'
+import { conf as config } from './infra/config'
 import * as aRoute from './infra/controllers/http/auth/route'
 import * as cRoute from './infra/controllers/http/check/route'
 import * as dRoute from './infra/controllers/http/docs/route'
 import * as gRoute from './infra/controllers/http/gifts/route'
 import server from './infra/controllers/http/server'
+import * as pgRepo from './infra/repositories/postgre/repository'
+import * as tmService from './infra/services/tokenManager/service'
 import { logger } from './infra/utils/logger'
 
 /// run init DB script ///
@@ -18,8 +27,18 @@ try {
   process.exit()
 }
 
+// init repos
+const postgreRepo: PostgreRepository = await pgRepo.make({ logger })
+
+// init services
+const dbManagerService: DBManagerService = dbmService.make({ postgreRepo })
+const tokenManagerService: TokenManagerService = tmService.make({ config })
+
+// init usecases
+const authUsecase: AuthUsecase = auUsecase.make({ dbManagerService, tokenManagerService })
+
 // init routes
-const authRoute: Hono = aRoute.make()
+const authRoute: Hono = aRoute.make({ authUsecase })
 const checkRoute: Hono = cRoute.make()
 const giftsRoute: Hono = gRoute.make()
 

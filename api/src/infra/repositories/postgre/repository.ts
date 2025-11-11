@@ -22,6 +22,10 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     throw new Error('Access denied')
   }
 
+  const createUser = async (user: User): Promise<boolean | ApplicationError> => {
+    return db.createUser(user)
+  }
+
   const createGifts = (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     return db.createGifts(gifts)
   }
@@ -30,8 +34,14 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.searchUserBasedOnCredentials(user)
   }
 
+  const searchUserBasedOnEmail = (email: string): Promise<boolean | ApplicationError> => {
+    return db.searchUserBasedOnEmail(email)
+  }
+
   return {
+    createUser,
     createGifts,
-    searchUserBasedOnCredentials
+    searchUserBasedOnCredentials,
+    searchUserBasedOnEmail
   }
 }

@@ -21,6 +21,31 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const searchUserBasedOnEmail = async (email: string): Promise<boolean | ApplicationError> => {
+    try {
+      const result = await db.user.find({
+        where: {
+          email
+        }
+      })
+      if (!result) {
+        return errors.EntityNotFound('User not found', {
+          query: `email: ${email}`,
+          system: 'PostgreSQL'
+        })
+      }
+      return true
+    } catch (error) {
+      return errors.Service('Error searching user by email', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Search User',
+        reason: 'Failed to find user based on email',
+        value: (error as Error).message
+      })
+    }
+  }
+
   const searchUserBasedOnCredentials = async (user: User): Promise<boolean | ApplicationError> => {
     try {
       const result = await db.user.findUnique({
@@ -41,7 +66,27 @@ export const api = (db: PrismaClient, logger: Logger) => {
         type: 'External',
         system: 'PostgreSQL',
         serviceName: 'Search User',
-        reason: 'Failed to find user',
+        reason: 'Failed to find user based on credentials',
+        value: (error as Error).message
+      })
+    }
+  }
+
+  const createUser = async (user: User): Promise<boolean | ApplicationError> => {
+    try {
+      await db.user.create({
+        data: {
+          email: user.email,
+          password: user.password
+        }
+      })
+      return true
+    } catch (error) {
+      return errors.Service('Error creating user', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Create User',
+        reason: 'Failed to create user',
         value: (error as Error).message
       })
     }
@@ -66,7 +111,9 @@ export const api = (db: PrismaClient, logger: Logger) => {
 
   return {
     checkAccess,
+    createUser,
     createGifts,
-    searchUserBasedOnCredentials
+    searchUserBasedOnCredentials,
+    searchUserBasedOnEmail
   }
 }

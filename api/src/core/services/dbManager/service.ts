@@ -7,17 +7,29 @@ export interface DBManagerServiceDeps {
 }
 
 export interface DBManagerService {
-  searchUser: (user: User) => Promise<boolean | ApplicationError>
+  searchUniqueUser: (user: User) => Promise<boolean | ApplicationError>
+  searchUser: (email: string) => Promise<boolean | ApplicationError>
+  createUser: (user: User) => Promise<boolean | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
   const { postgreRepo } = deps
 
-  const searchUser = (user: User): Promise<boolean | ApplicationError> => {
+  const searchUniqueUser = (user: User): Promise<boolean | ApplicationError> => {
     return postgreRepo.searchUserBasedOnCredentials(user)
   }
 
+  const searchUser = (email: string): Promise<boolean | ApplicationError> => {
+    return postgreRepo.searchUserBasedOnEmail(email)
+  }
+
+  const createUser = (user: User): Promise<boolean | ApplicationError> => {
+    return postgreRepo.createUser(user)
+  }
+
   return {
+    createUser,
+    searchUniqueUser,
     searchUser
   }
 }
