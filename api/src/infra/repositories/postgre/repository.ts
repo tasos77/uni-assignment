@@ -2,7 +2,7 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { PrismaClient } from '../../../../prisma/generated/client'
 import type { ApplicationError } from '../../../core/entities/errors/entity'
 import type { Gift } from '../../../core/entities/gift/entity'
-import type { User } from '../../../core/entities/user/entity'
+import type { SignInCreds, User } from '../../../core/entities/user/entity'
 import type { PostgreRepository } from '../../../core/repositories/postgre/repository'
 import type { Logger } from '../../utils/logger'
 import { api } from './api'
@@ -30,8 +30,8 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.createGifts(gifts)
   }
 
-  const searchUserBasedOnCredentials = (user: User): Promise<boolean | ApplicationError> => {
-    return db.searchUserBasedOnCredentials(user)
+  const searchUserBasedOnCredentials = (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    return db.searchUserBasedOnCredentials(creds)
   }
 
   const searchUserBasedOnEmail = (email: string): Promise<boolean | ApplicationError> => {

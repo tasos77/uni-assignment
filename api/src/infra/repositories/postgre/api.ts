@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { type ApplicationError, errors } from '../../../core/entities/errors/entity'
 import type { Gift } from '../../../core/entities/gift/entity'
-import type { User } from '../../../core/entities/user/entity'
+import type { SignInCreds, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
 export const api = (db: PrismaClient, logger: Logger) => {
@@ -23,7 +23,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
 
   const searchUserBasedOnEmail = async (email: string): Promise<boolean | ApplicationError> => {
     try {
-      const result = await db.user.find({
+      const result = await db.user.findFirst({
         where: {
           email
         }
@@ -46,23 +46,25 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const searchUserBasedOnCredentials = async (user: User): Promise<boolean | ApplicationError> => {
+  const searchUserBasedOnCredentials = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    const { email, password } = creds
     try {
-      const result = await db.user.findUnique({
+      const result = await db.user.findFirst({
         where: {
-          email: user.email,
-          password: user.password
+          email,
+          password
         }
       })
       if (!result) {
         return errors.EntityNotFound('User not found', {
-          query: `email:${user.email},password:${user.password}`,
+          query: `email:${creds.email},password:${creds.password}`,
           system: 'PostgreSQL'
         })
       }
       return true
     } catch (error) {
-      return errors.Service('Error getting user', {
+      console.log(error)
+      return errors.Service('Error getting user based on credentials from db', {
         type: 'External',
         system: 'PostgreSQL',
         serviceName: 'Search User',
@@ -73,16 +75,18 @@ export const api = (db: PrismaClient, logger: Logger) => {
   }
 
   const createUser = async (user: User): Promise<boolean | ApplicationError> => {
+    const { email, password, fullName } = user
     try {
       await db.user.create({
         data: {
-          email: user.email,
-          password: user.password
+          email,
+          password,
+          fullName
         }
       })
       return true
     } catch (error) {
-      return errors.Service('Error creating user', {
+      return errors.Service('Error creating user in db', {
         type: 'External',
         system: 'PostgreSQL',
         serviceName: 'Create User',

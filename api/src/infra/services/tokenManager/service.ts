@@ -1,6 +1,6 @@
 import * as jose from 'jose'
 import { type ApplicationError, errors } from '../../../core/entities/errors/entity'
-import type { User } from '../../../core/entities/user/entity'
+import type { SignInCreds } from '../../../core/entities/user/entity'
 import type { TokenManagerService } from '../../../core/services/tokenManager/service'
 import type { Config } from '../../../infra/config/schema'
 
@@ -15,8 +15,8 @@ export const make = (deps: TokenManagerServiceDeps): TokenManagerService => {
   const alg = config.jwt.alg
   const options = { expiresIn: '1h' }
 
-  const createToken = async (user: User): Promise<string> => {
-    const payload = { email: user.email }
+  const createToken = async (creds: SignInCreds): Promise<string> => {
+    const payload = { email: creds.email }
     return new jose.SignJWT(payload).setProtectedHeader({ alg, exp: options.expiresIn }).sign(secret)
   }
 

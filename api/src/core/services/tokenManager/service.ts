@@ -1,7 +1,7 @@
 import type { ApplicationError } from '../../entities/errors/entity'
-import type { User } from '../../entities/user/entity'
+import type { SignInCreds } from '../../entities/user/entity'
 
 export interface TokenManagerService {
-  createToken: (user: User) => Promise<string>
+  createToken: (creds: SignInCreds) => Promise<string>
   verifyToken: (token: string) => Promise<boolean | ApplicationError>
 }

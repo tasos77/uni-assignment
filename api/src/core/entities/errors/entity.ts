@@ -16,15 +16,6 @@ interface ValidationError {
   }
 }
 
-interface StateTransitionError {
-  kind: 'StateTransition'
-  details: {
-    from: string
-    to: string
-    reason: string
-  }
-}
-
 interface ServiceError {
   kind: 'Service'
   details: {
@@ -41,7 +32,7 @@ interface UnknownError {
   kind: 'Unknown'
 }
 
-type DomainError = EntityNotFoundError | ValidationError | StateTransitionError | ServiceError | UnknownError
+type DomainError = EntityNotFoundError | ValidationError | ServiceError | UnknownError
 
 type ErrorContext = Record<string, string>
 

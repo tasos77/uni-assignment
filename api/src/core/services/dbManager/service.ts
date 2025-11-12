@@ -1,5 +1,5 @@
 import type { ApplicationError } from '../../entities/errors/entity'
-import type { User } from '../../entities/user/entity'
+import type { SignInCreds, User } from '../../entities/user/entity'
 import type { PostgreRepository } from '../../repositories/postgre/repository'
 
 export interface DBManagerServiceDeps {
@@ -7,7 +7,7 @@ export interface DBManagerServiceDeps {
 }
 
 export interface DBManagerService {
-  searchUniqueUser: (user: User) => Promise<boolean | ApplicationError>
+  searchUniqueUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUser: (email: string) => Promise<boolean | ApplicationError>
   createUser: (user: User) => Promise<boolean | ApplicationError>
 }
@@ -15,8 +15,8 @@ export interface DBManagerService {
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
   const { postgreRepo } = deps
 
-  const searchUniqueUser = (user: User): Promise<boolean | ApplicationError> => {
-    return postgreRepo.searchUserBasedOnCredentials(user)
+  const searchUniqueUser = (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    return postgreRepo.searchUserBasedOnCredentials(creds)
   }
 
   const searchUser = (email: string): Promise<boolean | ApplicationError> => {

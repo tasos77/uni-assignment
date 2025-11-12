@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
 import { isApplicationError } from '../../../../core/entities/errors/entity'
 import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
-import { MatchUserRequestBodySchema, Sign_In_Up_RequestBodySchema } from '../schemas/requests'
+import { MatchUserRequestBodySchema, SignInRequestBodySchema, SignUpRequestBodySchema } from '../schemas/requests'
 import { BadRequestResponseSchema, InternalServerErrorResponseSchema, OneTimeTokenResponseSchema, Sign_In_Up_ResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
 interface AuthRouteDeps {
@@ -53,7 +53,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', Sign_In_Up_RequestBodySchema),
+    validator('json', SignInRequestBodySchema),
     async (c) => {
       const { email, password } = await c.req.json()
       const result = await authUsecase.authenticateUser({ email, password })
@@ -100,14 +100,12 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', Sign_In_Up_RequestBodySchema),
+    validator('json', SignUpRequestBodySchema),
     async (c) => {
-      const { email, password } = await c.req.json()
-      const result = await authUsecase.createUser({ email, password })
+      const { email, password, fullName } = await c.req.json()
+      const result = await authUsecase.createUser({ email, password, fullName })
       if (isApplicationError(result)) {
-        return c.json({
-          error: result.message
-        })
+        throw result
       }
       return c.json({
         token: result
@@ -193,7 +191,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', Sign_In_Up_RequestBodySchema),
+    validator('json', SignInRequestBodySchema),
     async (c) => {
       const { email, password } = await c.req.json()
       console.log(email, password)
@@ -203,6 +201,19 @@ export const make = (deps: AuthRouteDeps): Hono => {
       })
     }
   )
+
+  route.onError(async (err, c) => {
+    if (isApplicationError(err)) {
+      if (err.details.kind === 'EntityNotFound') {
+        return c.json({ error: err.message }, 400)
+      }
+      if (err.details.kind === 'Service') {
+        return c.json({ error: err.message }, 500)
+      }
+      return c.json({ error: 'Internal Server Error' }, 500)
+    }
+    return c.json(err)
+  })
 
   return route
 }

@@ -12,6 +12,7 @@ datasource db {
 model User {
   email     String @id
   password  String
+  fullName  String
   claimedGifts Gift[] @relation("ClaimedGifts") // optional relation many to many (ensure the gift independance)
 }
 
