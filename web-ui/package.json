@@ -11,12 +11,10 @@
   },
   "dependencies": {
     "@nuxt/ui": "4.1.0",
+    "axios": "^1.13.2",
     "nuxt": "^4.2.0",
     "typescript": "^5.6.3",
     "vue": "^3.5.22",
     "vue-router": "^4.6.3"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "2.3.4"
   }
 }

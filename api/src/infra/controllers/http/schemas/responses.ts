@@ -1,10 +1,17 @@
 import { z } from 'zod'
 import { GiftSchema } from '../../../../core/entities/gift/entity'
 
-export const Sign_In_Up_ResponseSchema = z.object({
+export const SignInResponseSchema = z.object({
   token: z.string().meta({
     description: 'JWT token for authentication',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+  })
+})
+
+export const SignUpResponseSchema = z.object({
+  token: z.string().meta({
+    description: 'Password updateded successfully',
+    example: 'Password updateded successfully'
   })
 })
 

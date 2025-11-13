@@ -40,8 +40,8 @@ const authUsecase: AuthUsecase = auUsecase.make({ dbManagerService, tokenManager
 
 // init routes
 const authRoute: Hono = aRoute.make({ authUsecase })
+const giftsRoute: Hono = gRoute.make({ authUsecase })
 const checkRoute: Hono = cRoute.make()
-const giftsRoute: Hono = gRoute.make()
 
 // use routes
 const basePath = '/api/v1'

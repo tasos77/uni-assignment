@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import * as z from "zod";
+import { z } from "zod";
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
 
 definePageMeta({
@@ -13,11 +13,6 @@ const fields: AuthFormField[] = [
     label: "Email",
     placeholder: "Enter your email",
     required: true,
-  },
-  {
-    name: "remember",
-    label: "Remember me",
-    type: "checkbox",
   },
 ];
 

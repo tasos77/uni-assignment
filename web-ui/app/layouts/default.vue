@@ -1,4 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const localstorage: LocalStorage = useLocalStorage();
+const logout = () => {
+  localstorage.remove("uniStudentsToken");
+  navigateTo("/sign-in");
+};
+</script>
 
 <template>
   <UHeader :toggle="false">
@@ -14,6 +20,7 @@
     <template #right>
       <UColorModeButton />
       <UButton
+        @click="logout"
         color="neutral"
         variant="ghost"
         to="/sign-in"

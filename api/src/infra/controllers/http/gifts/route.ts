@@ -1,9 +1,17 @@
 import { Hono } from 'hono'
-import { describeRoute, resolver } from 'hono-openapi'
+import { describeRoute, resolver, validator } from 'hono-openapi'
+import { isApplicationError } from '../../../../core/entities/errors/entity'
+import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
+import { AuthHeaderSchema } from '../schemas/requests'
 import { GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
-export const make = () => {
+interface GiftsRouteDeps {
+  authUsecase: AuthUsecase
+}
+
+export const make = (deps: GiftsRouteDeps) => {
   const route = new Hono()
+  const { authUsecase } = deps
 
   route.get(
     '/gifts',
@@ -37,17 +45,17 @@ export const make = () => {
         }
       }
     }),
+    validator('header', AuthHeaderSchema),
     async (c) => {
-      const gifts = [
-        {
-          id: 1,
-          name: 'Gift 1',
-          description: 'Description of gift 1',
-          price: 10.99,
-          image: 'https://example.com/gift1.jpg'
-        }
-      ]
-      return c.json(gifts)
+      const { authorization } = c.req.valid('header')
+      const result = await authUsecase.getGifts(authorization)
+      console.log(result)
+      if (isApplicationError(result)) {
+        throw result
+      }
+      return c.json({
+        gifts: result
+      })
     }
   )
 

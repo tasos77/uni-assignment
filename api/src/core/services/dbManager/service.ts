@@ -1,4 +1,5 @@
 import type { ApplicationError } from '../../entities/errors/entity'
+import type { Gift } from '../../entities/gift/entity'
 import type { SignInCreds, User } from '../../entities/user/entity'
 import type { PostgreRepository } from '../../repositories/postgre/repository'
 
@@ -11,6 +12,7 @@ export interface DBManagerService {
   searchUser: (email: string) => Promise<boolean | ApplicationError>
   createUser: (user: User) => Promise<boolean | ApplicationError>
   updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
+  getGifts: () => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
@@ -32,10 +34,15 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     return postgreRepo.updateUser(creds)
   }
 
+  const getGifts = (): Promise<Gift[] | ApplicationError> => {
+    return postgreRepo.getGifts()
+  }
+
   return {
     createUser,
     updateUser,
     searchUniqueUser,
-    searchUser
+    searchUser,
+    getGifts
   }
 }

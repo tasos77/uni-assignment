@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import * as z from "zod";
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
+import { SignUpFormDataSchema, type SignUpFormData } from "~/models/common";
 
 definePageMeta({
   layout: "public",
@@ -21,32 +21,22 @@ const fields: AuthFormField[] = [
     placeholder: "Enter your password",
     required: true,
   },
-  {
-    name: "remember",
-    label: "Remember me",
-    type: "checkbox",
-  },
 ];
 
-const schema = z.object({
-  email: z.email("Invalid email"),
-  password: z
-    .string("Password is required")
-    .min(4, "Must be at least 4 characters"),
-});
+const api = useApi();
 
-type Schema = z.output<typeof schema>;
-
-function onSubmit(payload: FormSubmitEvent<Schema>) {
+const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
   console.log("Submitted", payload);
-}
+  const result = await api.signUp(payload);
+  console.log(result);
+};
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
       <UAuthForm
-        :schema="schema"
+        :schema="SignUpFormDataSchema"
         :fields="fields"
         title="Sign Up"
         icon="i-lucide-book-open-check"

@@ -8,7 +8,8 @@ import {
   InternalServerErrorResponseSchema,
   OneTimeTokenResponseSchema,
   PasswordUpdatedResponseSchema,
-  Sign_In_Up_ResponseSchema,
+  SignInResponseSchema,
+  SignUpResponseSchema,
   UnauthorizedResponseSchema
 } from '../schemas/responses'
 
@@ -30,7 +31,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
           description: 'User authenticated successfully',
           content: {
             'application/json': {
-              schema: resolver(Sign_In_Up_ResponseSchema)
+              schema: resolver(SignInResponseSchema)
             }
           }
         },
@@ -83,7 +84,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
           description: 'User created successfully',
           content: {
             'application/json': {
-              schema: resolver(Sign_In_Up_ResponseSchema)
+              schema: resolver(SignUpResponseSchema)
             }
           }
         },
@@ -113,7 +114,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         throw result
       }
       return c.json({
-        token: result
+        message: 'User created successfully'
       })
     }
   )

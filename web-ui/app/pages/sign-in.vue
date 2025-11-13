@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import * as z from "zod";
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
+import { SignInCredsSchema, type SignInCreds } from "~/models/common";
 
 definePageMeta({
   layout: "public",
@@ -21,32 +21,41 @@ const fields: AuthFormField[] = [
     placeholder: "Enter your password",
     required: true,
   },
-  {
-    name: "remember",
-    label: "Remember me",
-    type: "checkbox",
-  },
 ];
 
-const schema = z.object({
-  email: z.email("Invalid email"),
-  password: z
-    .string("Password is required")
-    .min(4, "Must be at least 4 characters"),
-});
+const api = useApi();
+const localstorage = useLocalStorage();
+const showError = ref(false);
+const errorText = ref("");
+const loading = ref(false);
 
-type Schema = z.output<typeof schema>;
-
-function onSubmit(payload: FormSubmitEvent<Schema>) {
-  console.log("Submitted", payload);
-}
+const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
+  const { email, password } = payload.data;
+  showError.value = false;
+  loading.value = true;
+  api
+    .signIn({ email, password })
+    .then((response) => {
+      loading.value = false;
+      localstorage.set("uniStudentsToken", response.data.token);
+      navigateTo("/list-gifts");
+    })
+    .catch((err) => {
+      loading.value = false;
+      errorText.value = err?.response?.data?.error
+        ? err.response.data.error
+        : "Failed to sign in!";
+      showError.value = true;
+    });
+};
 </script>
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
       <UAuthForm
-        :schema="schema"
+        :loading="loading"
+        :schema="SignInCredsSchema"
         :fields="fields"
         title="Sign in to UniStudents"
         icon="i-lucide-lock"
@@ -64,8 +73,8 @@ function onSubmit(payload: FormSubmitEvent<Schema>) {
             >Forgot password?</ULink
           >
         </template>
-        <template #validation>
-          <UAlert color="error" icon="i-lucide-info" title="Error signing in" />
+        <template #validation v-if="showError">
+          <UAlert color="error" icon="i-lucide-info" :title="errorText" />
         </template>
       </UAuthForm>
     </UPageCard>

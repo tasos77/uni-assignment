@@ -1,5 +1,6 @@
 import { hash } from '../../../infra/utils/hasher'
 import { type ApplicationError, errors, isApplicationError } from '../../entities/errors/entity'
+import type { Gift } from '../../entities/gift/entity'
 import type { SignInCreds, User } from '../../entities/user/entity'
 import type { DBManagerService } from '../../services/dbManager/service'
 import type { TokenManagerService } from '../../services/tokenManager/service'
@@ -13,7 +14,8 @@ export interface AuthUsecase {
   authenticateUser: (creds: SignInCreds) => Promise<string | ApplicationError>
   createUser: (user: User) => Promise<string | ApplicationError>
   matchUser: (email: string) => Promise<string | ApplicationError>
-  updatePassword: (creds: SignInCreds, token: string | undefined) => Promise<boolean | ApplicationError>
+  updatePassword: (creds: SignInCreds, token: string) => Promise<boolean | ApplicationError>
+  getGifts: (token: string) => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
@@ -88,7 +90,7 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
     return token
   }
 
-  const updatePassword = async (creds: SignInCreds, token: string | undefined): Promise<boolean | ApplicationError> => {
+  const updatePassword = async (creds: SignInCreds, token: string): Promise<boolean | ApplicationError> => {
     if (token && oneTimeTokens.has(creds.email)) {
       oneTimeTokens.delete(creds.email)
       const hashedPassword = hash(creds.password)
@@ -104,10 +106,25 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
     }
   }
 
+  const getGifts = async (token: string): Promise<Gift[] | ApplicationError> => {
+    if (token) {
+      return await dbManagerService.getGifts()
+    } else {
+      return errors.Service('Invalid or missing token', {
+        type: 'Internal',
+        serviceName: 'AuthUsecase',
+        system: 'Local',
+        reason: 'Invalid or missing token',
+        value: 'Invalid or missing token'
+      })
+    }
+  }
+
   return {
     authenticateUser,
     createUser,
     matchUser,
-    updatePassword
+    updatePassword,
+    getGifts
   }
 }

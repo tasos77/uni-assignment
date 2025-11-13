@@ -136,12 +136,28 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const getGifts = async (): Promise<Gift[] | ApplicationError> => {
+    try {
+      const gifts = await db.gift.findMany()
+      return gifts
+    } catch (error) {
+      return errors.Service('Error getting gifts', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Get Gifts',
+        reason: 'Failed to get gifts',
+        value: (error as Error).message
+      })
+    }
+  }
+
   return {
     checkAccess,
     createUser,
     updateUser,
     createGifts,
     searchUserBasedOnCredentials,
-    searchUserBasedOnEmail
+    searchUserBasedOnEmail,
+    getGifts
   }
 }
