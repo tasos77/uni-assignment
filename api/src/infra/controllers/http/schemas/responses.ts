@@ -43,3 +43,10 @@ export const InternalServerErrorResponseSchema = z.object({
     example: 'Internal Server Error'
   })
 })
+
+export const PasswordUpdatedResponseSchema = z.object({
+  message: z.string().meta({
+    description: 'Password updated successfully',
+    example: 'Password updated successfully'
+  })
+})

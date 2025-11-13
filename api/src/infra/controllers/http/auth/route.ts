@@ -2,8 +2,15 @@ import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
 import { isApplicationError } from '../../../../core/entities/errors/entity'
 import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
-import { MatchUserRequestBodySchema, SignInRequestBodySchema, SignUpRequestBodySchema } from '../schemas/requests'
-import { BadRequestResponseSchema, InternalServerErrorResponseSchema, OneTimeTokenResponseSchema, Sign_In_Up_ResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
+import { AuthHeaderSchema, MatchUserRequestBodySchema, SignInRequestBodySchema, SignUpRequestBodySchema } from '../schemas/requests'
+import {
+  BadRequestResponseSchema,
+  InternalServerErrorResponseSchema,
+  OneTimeTokenResponseSchema,
+  PasswordUpdatedResponseSchema,
+  Sign_In_Up_ResponseSchema,
+  UnauthorizedResponseSchema
+} from '../schemas/responses'
 
 interface AuthRouteDeps {
   authUsecase: AuthUsecase
@@ -58,9 +65,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
       const { email, password } = await c.req.json()
       const result = await authUsecase.authenticateUser({ email, password })
       if (isApplicationError(result)) {
-        return c.json({
-          error: result.message
-        })
+        throw result
       }
       return c.json({
         token: result
@@ -148,10 +153,12 @@ export const make = (deps: AuthRouteDeps): Hono => {
     validator('json', MatchUserRequestBodySchema),
     async (c) => {
       const { email } = await c.req.json()
-      console.log(email)
-
+      const result = await authUsecase.matchUser(email)
+      if (isApplicationError(result)) {
+        throw result
+      }
       return c.json({
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cQ.signature'
+        token: result
       })
     }
   )
@@ -163,7 +170,12 @@ export const make = (deps: AuthRouteDeps): Hono => {
       description: 'Update user password',
       responses: {
         200: {
-          description: 'Password updated successfully'
+          description: 'Password updated successfully',
+          content: {
+            'application/json': {
+              schema: resolver(PasswordUpdatedResponseSchema)
+            }
+          }
         },
         400: {
           description: 'Bad request',
@@ -192,28 +204,19 @@ export const make = (deps: AuthRouteDeps): Hono => {
       }
     }),
     validator('json', SignInRequestBodySchema),
+    validator('header', AuthHeaderSchema),
     async (c) => {
-      const { email, password } = await c.req.json()
-      console.log(email, password)
-
+      const { email, password } = c.req.valid('json')
+      const { authorization } = c.req.valid('header')
+      const result = await authUsecase.updatePassword({ email, password }, authorization)
+      if (isApplicationError(result)) {
+        throw result
+      }
       return c.json({
-        token: 'eyJhbGciOiJIUzI1NiIsInR5cQ.signature'
+        message: 'Password updated successfully'
       })
     }
   )
-
-  route.onError(async (err, c) => {
-    if (isApplicationError(err)) {
-      if (err.details.kind === 'EntityNotFound') {
-        return c.json({ error: err.message }, 400)
-      }
-      if (err.details.kind === 'Service') {
-        return c.json({ error: err.message }, 500)
-      }
-      return c.json({ error: 'Internal Server Error' }, 500)
-    }
-    return c.json(err)
-  })
 
   return route
 }

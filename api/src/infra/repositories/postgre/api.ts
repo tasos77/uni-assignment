@@ -96,6 +96,29 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const updateUser = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    const { email, password } = creds
+    try {
+      await db.user.update({
+        where: {
+          email
+        },
+        data: {
+          password
+        }
+      })
+      return true
+    } catch (error) {
+      return errors.Service('Error updating user in db', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Update User',
+        reason: 'Failed to update user',
+        value: (error as Error).message
+      })
+    }
+  }
+
   const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     try {
       await db.gift.createMany({
@@ -116,6 +139,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
   return {
     checkAccess,
     createUser,
+    updateUser,
     createGifts,
     searchUserBasedOnCredentials,
     searchUserBasedOnEmail

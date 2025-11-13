@@ -12,6 +12,7 @@ import * as aRoute from './infra/controllers/http/auth/route'
 import * as cRoute from './infra/controllers/http/check/route'
 import * as dRoute from './infra/controllers/http/docs/route'
 import * as gRoute from './infra/controllers/http/gifts/route'
+import { onErrorHandler } from './infra/controllers/http/onError'
 import server from './infra/controllers/http/server'
 import * as pgRepo from './infra/repositories/postgre/repository'
 import * as tmService from './infra/services/tokenManager/service'
@@ -55,5 +56,8 @@ server.route(basePath, docsRoute)
 // serve specific paths
 server.use('/public/images/*', serveStatic({ root: './' }))
 server.use('/public/logos/*', serveStatic({ root: './' }))
+
+// use custom onError handler
+server.onError(onErrorHandler)
 
 export default server

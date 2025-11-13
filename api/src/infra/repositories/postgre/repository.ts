@@ -26,6 +26,10 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.createUser(user)
   }
 
+  const updateUser = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    return db.updateUser(creds)
+  }
+
   const createGifts = (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     return db.createGifts(gifts)
   }
@@ -40,6 +44,7 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
 
   return {
     createUser,
+    updateUser,
     createGifts,
     searchUserBasedOnCredentials,
     searchUserBasedOnEmail

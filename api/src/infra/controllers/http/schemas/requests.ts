@@ -32,3 +32,10 @@ export const MatchUserRequestBodySchema = z.object({
     example: 'user@example.com'
   })
 })
+
+export const AuthHeaderSchema = z.object({
+  authorization: z.string().meta({
+    description: 'Authorization header',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c'
+  })
+})

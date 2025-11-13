@@ -10,6 +10,7 @@ export interface DBManagerService {
   searchUniqueUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUser: (email: string) => Promise<boolean | ApplicationError>
   createUser: (user: User) => Promise<boolean | ApplicationError>
+  updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
@@ -27,8 +28,13 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     return postgreRepo.createUser(user)
   }
 
+  const updateUser = (creds: SignInCreds): Promise<boolean | ApplicationError> => {
+    return postgreRepo.updateUser(creds)
+  }
+
   return {
     createUser,
+    updateUser,
     searchUniqueUser,
     searchUser
   }

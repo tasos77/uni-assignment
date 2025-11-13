@@ -12,10 +12,13 @@ interface AuthUsecaseDeps {
 export interface AuthUsecase {
   authenticateUser: (creds: SignInCreds) => Promise<string | ApplicationError>
   createUser: (user: User) => Promise<string | ApplicationError>
+  matchUser: (email: string) => Promise<string | ApplicationError>
+  updatePassword: (creds: SignInCreds, token: string | undefined) => Promise<boolean | ApplicationError>
 }
 
 export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
   const { dbManagerService, tokenManagerService } = deps
+  const oneTimeTokens: Map<string, string> = new Map()
 
   const authenticateUser = async (creds: SignInCreds): Promise<string | ApplicationError> => {
     try {
@@ -23,7 +26,7 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
       if (isApplicationError(result)) {
         return result
       }
-      return await tokenManagerService.createToken(creds)
+      return await tokenManagerService.createToken(creds.email)
     } catch (error) {
       return errors.Service('Authentication failed', {
         type: 'Internal',
@@ -44,7 +47,7 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
         if (isApplicationError(userCreationResult)) {
           return userCreationResult
         }
-        const token = await tokenManagerService.createToken(user)
+        const token = await tokenManagerService.createToken(user.email)
         return token
       }
       if (result) {
@@ -74,11 +77,37 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
       })
     }
   }
-  // const matchUser = ...
-  // const updatePassword = ...
+
+  const matchUser = async (email: string): Promise<string | ApplicationError> => {
+    const result = await dbManagerService.searchUser(email)
+    if (isApplicationError(result)) {
+      return result
+    }
+    const token = await tokenManagerService.createToken(email)
+    oneTimeTokens.set(email, token)
+    return token
+  }
+
+  const updatePassword = async (creds: SignInCreds, token: string | undefined): Promise<boolean | ApplicationError> => {
+    if (token && oneTimeTokens.has(creds.email)) {
+      oneTimeTokens.delete(creds.email)
+      const hashedPassword = hash(creds.password)
+      return await dbManagerService.updateUser({ email: creds.email, password: hashedPassword })
+    } else {
+      return errors.Service('Invalid or missing token', {
+        type: 'Internal',
+        serviceName: 'AuthUsecase',
+        system: 'Local',
+        reason: 'Invalid or missing token',
+        value: 'Invalid or missing token'
+      })
+    }
+  }
 
   return {
     authenticateUser,
-    createUser
+    createUser,
+    matchUser,
+    updatePassword
   }
 }

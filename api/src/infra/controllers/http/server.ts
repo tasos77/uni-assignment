@@ -7,6 +7,6 @@ const app = new Hono()
 app.use('*', cors({ origin: '*' }))
 app.use('*', prettyJSON())
 app.use(secureHeaders())
-app.options('*', (c) => c.body(null, 204))
+app.options('*', (c) => c.body(null, 200))
 
 export default app
