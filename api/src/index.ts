@@ -1,6 +1,5 @@
 import { $ } from 'bun'
 import type { Hono } from 'hono'
-import { serveStatic } from 'hono/bun'
 import type { PostgreRepository } from './core/repositories/postgre/repository'
 import type { DBManagerService } from './core/services/dbManager/service'
 import * as dbmService from './core/services/dbManager/service'
@@ -52,10 +51,6 @@ server.route(basePath, giftsRoute)
 // generate docs from route instances
 const docsRoute: Hono = dRoute.make({ server })
 server.route(basePath, docsRoute)
-
-// serve specific paths
-server.use('/public/images/*', serveStatic({ root: './' }))
-server.use('/public/logos/*', serveStatic({ root: './' }))
 
 // use custom onError handler
 server.onError(onErrorHandler)

@@ -14,29 +14,28 @@ export const useApi = () => {
   };
 
   const signUp = (formData: SignUpFormData) => {
-    return client
-      .post("/sign-up", formData)
-      .then((response) => response.data.token)
-      .catch((err) => err.response.data);
+    return client.post("/sign-up", formData);
   };
 
   const matchUser = (email: Email) => {
-    return client
-      .post("/match-user", email)
-      .then((response) => response.data)
-      .catch((err) => err.response.data);
+    return client.post("/match-user", email);
   };
 
   const updatePassword = (creds: SignInCreds) => {
-    return client
-      .post("update-password", creds, {
-        headers: {
-          Authorization: localstorage.get("uniStudentsToken"),
-        },
-      })
-      .then((response) => response.data)
-      .catch((err) => err.response.data);
+    return client.post("update-password", creds, {
+      headers: {
+        Authorization: localstorage.get("uniStudentsToken"),
+      },
+    });
   };
 
-  return { signIn, signUp, matchUser, updatePassword };
+  const getGifts = () => {
+    return client.get("/gifts", {
+      headers: {
+        Authorization: localstorage.get("uniStudentsToken"),
+      },
+    });
+  };
+
+  return { signIn, signUp, matchUser, updatePassword, getGifts };
 };

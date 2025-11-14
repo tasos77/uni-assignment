@@ -19,6 +19,20 @@ export const SignInCredsSchema = z.object({
     .min(4, "Must be at least 4 characters"),
 });
 
+export const GiftSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  category: z.string(),
+  description: z.string(),
+  terms: z.string(),
+  brandTitle: z.string(),
+  brandLogoUrl: z.string(),
+  imageUrl: z.string(),
+  type: z.string(),
+  channel: z.string(),
+});
+
 export type SignInCreds = z.infer<typeof SignInCredsSchema>;
 export type SignUpFormData = z.infer<typeof SignUpFormDataSchema>;
 export type Email = z.infer<typeof EmailSchema>;
+export type Gift = z.infer<typeof GiftSchema>;

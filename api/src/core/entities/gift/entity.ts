@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const GiftSchema = z.object({
+  id: z.string(),
   title: z.string(),
   category: z.string(),
   description: z.string(),

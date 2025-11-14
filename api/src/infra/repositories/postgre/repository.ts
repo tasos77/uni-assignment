@@ -51,6 +51,7 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     updateUser,
     createGifts,
     searchUserBasedOnCredentials,
-    searchUserBasedOnEmail
+    searchUserBasedOnEmail,
+    getGifts
   }
 }

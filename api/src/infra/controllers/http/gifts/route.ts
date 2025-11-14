@@ -49,7 +49,6 @@ export const make = (deps: GiftsRouteDeps) => {
     async (c) => {
       const { authorization } = c.req.valid('header')
       const result = await authUsecase.getGifts(authorization)
-      console.log(result)
       if (isApplicationError(result)) {
         throw result
       }

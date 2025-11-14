@@ -1,62 +1,51 @@
 <script setup lang="ts">
-const posts = ref([
-  {
-    title: "Nuxt Icon v1",
-    description: "Discover Nuxt Icon v1!",
-    image: "https://nuxt.com/assets/blog/nuxt-icon/cover.png",
-    date: "2024-11-25",
-  },
-  {
-    title: "Nuxt 3.14",
-    description: "Nuxt 3.14 is out!",
-    image: "https://nuxt.com/assets/blog/v3.14.png",
-    date: "2024-11-04",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-  {
-    title: "Nuxt 3.13",
-    description: "Nuxt 3.13 is out!",
-    image: "https://nuxt.com/assets/blog/v3.13.png",
-    date: "2024-08-22",
-  },
-]);
+import type { Gift } from "~/models/common";
+
+interface Props {
+  gifts: Gift[];
+}
+
+const props = defineProps<Props>();
+const emits = defineEmits(["claim"]);
 </script>
 
 <template>
-  <UBlogPosts :posts="posts" />
+  <div class="flex flex-wrap justify-center gap-6">
+    <UCard
+      v-for="gift in props.gifts"
+      :key="gift.id"
+      class="w-auto h-auto max-w-100 hover:outline-1"
+      variant="soft"
+    >
+      <template #header>
+        <img :src="gift.imageUrl" style="max-height: 430px" />
+      </template>
+      <div class="flex flex-col gap-4" style="height: min-content">
+        <div>{{ gift.brandTitle }}</div>
+        <div class="text-xl">{{ gift.title }}</div>
+        <div>{{ gift.description }}</div>
+        <div class="text-sm">
+          Terms:
+          <span class="opacity-45 italic">{{ gift.terms }}</span>
+        </div>
+        <div class="flex justify-end">
+          <img
+            :src="gift.brandLogoUrl"
+            width="40"
+            height="40"
+            class="rounded-full"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <div class="flex justify-end">
+          <UButton
+            label="Claim"
+            class="cursor-pointer"
+            @click="emits('claim', gift.id)"
+          />
+        </div>
+      </template>
+    </UCard>
+  </div>
 </template>

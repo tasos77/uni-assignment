@@ -5,32 +5,32 @@ const stores = [
   {
     name: 'ChickenMax',
     category: 'Food',
-    logo: '/public/logos/chicken-logo.jpg',
-    image: '/public/images/chicken.jpg'
+    logo: '/logos/chicken-logo.jpg',
+    image: '/images/chicken.jpg'
   },
   {
     name: 'BakeryBite',
     category: 'Food',
-    logo: '/public/logos/bakery-logo.jpg',
-    image: '/public/images/bakery.jpg'
+    logo: '/logos/bakery-logo.jpg',
+    image: '/images/bakery.jpg'
   },
   {
     name: 'PizzaWorld',
     category: 'Pizza',
-    logo: '/public/logos/pizza-logo.jpg',
-    image: '/public/images/pizza.jpg'
+    logo: '/logos/pizza-logo.jpg',
+    image: '/images/pizza.jpg'
   },
   {
     name: 'CoffeeCentral',
     category: 'Coffee',
-    logo: '/public/logos/coffee-logo.jpg',
-    image: '/public/images/coffee.jpg'
+    logo: '/logos/coffee-logo.jpg',
+    image: '/images/coffee.jpg'
   },
   {
     name: 'BarHub',
     category: 'Bars',
-    logo: '/public/logos/drinks-logo.jpg',
-    image: '/public/images/drinks.jpg'
+    logo: '/logos/drinks-logo.jpg',
+    image: '/images/drinks.jpg'
   }
 ]
 
@@ -40,21 +40,21 @@ function generateDescription(title, store, type) {
   const base = title.toLowerCase()
 
   if (base.includes('pizza')) {
-    return `${brand} is offering students a delicious pizza treat — perfect for study breaks or late-night cravings.`
+    return `${brand} is offering students a delicious pizza treat, perfect for study breaks or late-night cravings.`
   }
   if (base.includes('coffee') || store.category === 'Coffee') {
-    return `Grab your caffeine boost from ${brand} with this special ${type.replace('-', ' ')} offer made just for students.`
+    return `Grab your caffeine boost from ${brand} with this special offer made just for students.`
   }
   if (base.includes('bakery') || store.name === 'BakeryBite') {
     return `Enjoy freshly baked pastries from ${brand} and make your mornings a little sweeter.`
   }
   if (base.includes('chicken') || store.name === 'ChickenMax') {
-    return `Tasty chicken meals from ${brand} at an unbeatable student price — don’t miss this ${type} offer.`
+    return `Tasty chicken meals from ${brand} at an unbeatable student price, don’t miss this ${type} offer.`
   }
   if (base.includes('bar') || store.category === 'Bars') {
     return `Celebrate with friends at ${brand} and enjoy exclusive drink deals during your student nights.`
   }
-  return `${brand} brings you a special ${type} — ideal for students looking to save and enjoy.`
+  return `${brand} brings you a special ${type}, ideal for students looking to save and enjoy.`
 }
 
 // generate context-based terms
