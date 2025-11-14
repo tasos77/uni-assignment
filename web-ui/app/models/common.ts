@@ -32,7 +32,12 @@ export const GiftSchema = z.object({
   channel: z.string(),
 });
 
+export const SearchSchema = z.object({
+  input: z.string().optional(),
+});
+
 export type SignInCreds = z.infer<typeof SignInCredsSchema>;
 export type SignUpFormData = z.infer<typeof SignUpFormDataSchema>;
 export type Email = z.infer<typeof EmailSchema>;
 export type Gift = z.infer<typeof GiftSchema>;
+export type Search = z.infer<typeof SearchSchema>;

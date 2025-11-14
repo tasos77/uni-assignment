@@ -13,4 +13,12 @@ export const GiftSchema = z.object({
   channel: z.string()
 })
 
+export const FiltersSchema = z.object({
+  channels: z.array(z.string()),
+  types: z.array(z.string()),
+  brandTitles: z.array(z.string()),
+  category: z.string()
+})
+
 export type Gift = z.infer<typeof GiftSchema>
+export type Filters = z.infer<typeof FiltersSchema>

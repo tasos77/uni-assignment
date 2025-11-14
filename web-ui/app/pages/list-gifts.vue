@@ -5,6 +5,7 @@ const gifts = ref([]);
 let channels: string[] = [];
 let types: string[] = [];
 let brandTitles: string[] = [];
+let category: string = "All";
 
 let queryChannels = "";
 let queryTypes = "";
@@ -14,8 +15,8 @@ const claim = (id: string) => {
   console.log(id);
 };
 
-const getFilteredGifts = async (filter: {
-  flag: "channel" | "type" | "brandTitle";
+const getFilteredGifts = (filter: {
+  flag: "channel" | "type" | "brandTitle" | "category";
   key: string;
 }) => {
   if (filter.flag === "channel") {
@@ -42,28 +43,40 @@ const getFilteredGifts = async (filter: {
       brandTitles.push(formatedKey);
     }
   }
+  if (filter.flag === "category") {
+    category = filter.key;
+  }
 
   const queryChannels = channels.join(",");
   const queryTypes = types.join(",");
   const queryBrantTitles = brandTitles.join(",");
 
   api
-    .getGifts(queryChannels, queryTypes, queryBrantTitles)
+    .getGifts(queryChannels, queryTypes, queryBrantTitles, category)
     .then((response) => {
       gifts.value = response.data.gifts;
     })
     .catch((err) => {
       console.log(err);
-      return err.response.message;
+    });
+};
+
+const search = (input: string) => {
+  api
+    .search(input)
+    .then((response) => {
+      gifts.value = response.data.gifts;
+    })
+    .catch((err) => {
+      console.log(err);
     });
 };
 
 onMounted(() => {
   api
-    .getGifts(queryChannels, queryTypes, queryBrantTitles)
+    .getGifts(queryChannels, queryTypes, queryBrantTitles, category)
     .then((response) => {
       gifts.value = response.data.gifts;
-      console.log(gifts.value);
     })
     .catch((err) => {
       console.log(err.response.data);
@@ -73,8 +86,8 @@ onMounted(() => {
 
 <template>
   <div class="flex justify-between items-center p-4">
-    <Categories />
-    <Search />
+    <Categories @category="getFilteredGifts" />
+    <Search @search="search" />
   </div>
   <USeparator />
   <UPage>

@@ -16,7 +16,8 @@ export interface AuthUsecase {
   createUser: (user: User) => Promise<string | ApplicationError>
   matchUser: (email: string) => Promise<string | ApplicationError>
   updatePassword: (creds: SignInCreds, token: string) => Promise<boolean | ApplicationError>
-  getGifts: (token: string, filters: { channels: string; types: string; brandTitles: string }) => Promise<Gift[] | ApplicationError>
+  getGifts: (token: string, filters: { channels: string; types: string; brandTitles: string; category: string }) => Promise<Gift[] | ApplicationError>
+  searchGifts: (token: string, input: string) => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
@@ -107,11 +108,29 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
     }
   }
 
-  const getGifts = async (token: string, filters: { channels: string; types: string; brandTitles: string }): Promise<Gift[] | ApplicationError> => {
+  const getGifts = async (token: string, filters: { channels: string; types: string; brandTitles: string; category: string }): Promise<Gift[] | ApplicationError> => {
     if (token) {
       const serializedFilters = serializeFilters(filters)
       const result = await dbManagerService.getGifts(serializedFilters)
 
+      if (isApplicationError(result)) {
+        console.log(result.details.details)
+      }
+      return result
+    } else {
+      return errors.Service('Invalid or missing token', {
+        type: 'Internal',
+        serviceName: 'AuthUsecase',
+        system: 'Local',
+        reason: 'Invalid or missing token',
+        value: 'Invalid or missing token'
+      })
+    }
+  }
+
+  const searchGifts = async (token: string, input: string): Promise<Gift[] | ApplicationError> => {
+    if (token) {
+      const result = await dbManagerService.searchGifts(input)
       if (isApplicationError(result)) {
         console.log(result.details.details)
       }
@@ -132,6 +151,7 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
     createUser,
     matchUser,
     updatePassword,
-    getGifts
+    getGifts,
+    searchGifts
   }
 }

@@ -1,5 +1,5 @@
 import type { ApplicationError } from '../../entities/errors/entity'
-import type { Gift } from '../../entities/gift/entity'
+import type { Filters, Gift } from '../../entities/gift/entity'
 import type { SignInCreds, User } from '../../entities/user/entity'
 
 export interface PostgreRepository {
@@ -8,5 +8,6 @@ export interface PostgreRepository {
   createGifts: (gifts: Gift[]) => Promise<boolean | ApplicationError>
   searchUserBasedOnCredentials: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUserBasedOnEmail: (email: string) => Promise<boolean | ApplicationError>
-  getGifts: (filters: { channels: string[]; types: string[]; brandTitles: string[] }) => Promise<Gift[] | ApplicationError>
+  getGifts: (filters: Filters) => Promise<Gift[] | ApplicationError>
+  searchGifts: (input: string) => Promise<Gift[] | ApplicationError>
 }

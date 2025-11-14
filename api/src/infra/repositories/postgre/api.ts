@@ -1,6 +1,6 @@
 import type { PrismaClient } from '@prisma/client'
 import { type ApplicationError, errors } from '../../../core/entities/errors/entity'
-import type { Gift } from '../../../core/entities/gift/entity'
+import type { Filters, Gift } from '../../../core/entities/gift/entity'
 import type { SignInCreds, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
@@ -136,8 +136,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const getGifts = async (filters: { channels: string[]; types: string[]; brandTitles: string[] }): Promise<Gift[] | ApplicationError> => {
-    console.log(filters)
+  const getGifts = async (filters: Filters): Promise<Gift[] | ApplicationError> => {
     const where: any = {}
     if (filters.channels.length > 0) {
       where.channel = {
@@ -154,8 +153,10 @@ export const api = (db: PrismaClient, logger: Logger) => {
         in: filters.brandTitles
       }
     }
+    if (filters.category.length > 0 && filters.category !== 'All') {
+      where.category = filters.category
+    }
 
-    console.log(where)
     try {
       const gifts = await db.gift.findMany({ where })
       return gifts
@@ -170,6 +171,25 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const searchGifts = async (input: string): Promise<Gift[] | ApplicationError> => {
+    try {
+      const gifts = await db.gift.findMany({
+        where: {
+          title: { contains: input, mode: 'insensitive' }
+        }
+      })
+      return gifts
+    } catch (error) {
+      return errors.Service('Error searching gifts', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Search Gifts',
+        reason: 'Failed to search gifts',
+        value: (error as Error).message
+      })
+    }
+  }
+
   return {
     checkAccess,
     createUser,
@@ -177,6 +197,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
     createGifts,
     searchUserBasedOnCredentials,
     searchUserBasedOnEmail,
-    getGifts
+    getGifts,
+    searchGifts
   }
 }

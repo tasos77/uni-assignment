@@ -52,5 +52,16 @@ export const GiftsRequestQuerySchema = z.object({
   brandTitles: z.string().optional().meta({
     description: 'String of brand title',
     example: 'BarHub'
+  }),
+  category: z.string().optional().meta({
+    description: 'String of category',
+    example: 'Food'
+  })
+})
+
+export const SearchRequestQuerySchema = z.object({
+  input: z.string().min(1).meta({
+    description: 'Search input',
+    example: 'Buy 1 Get 1'
   })
 })

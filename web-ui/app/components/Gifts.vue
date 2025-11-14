@@ -14,7 +14,7 @@ const emits = defineEmits(["claim"]);
     <UCard
       v-for="gift in props.gifts"
       :key="gift.id"
-      class="max-w-200 hover:outline-1"
+      class="max-w-180 hover:outline-1"
       variant="soft"
     >
       <template #header>

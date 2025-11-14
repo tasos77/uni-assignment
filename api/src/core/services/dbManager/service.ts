@@ -1,5 +1,5 @@
 import type { ApplicationError } from '../../entities/errors/entity'
-import type { Gift } from '../../entities/gift/entity'
+import type { Filters, Gift } from '../../entities/gift/entity'
 import type { SignInCreds, User } from '../../entities/user/entity'
 import type { PostgreRepository } from '../../repositories/postgre/repository'
 
@@ -12,7 +12,8 @@ export interface DBManagerService {
   searchUser: (email: string) => Promise<boolean | ApplicationError>
   createUser: (user: User) => Promise<boolean | ApplicationError>
   updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
-  getGifts: (filters: { channels: string[]; types: string[]; brandTitles: string[] }) => Promise<Gift[] | ApplicationError>
+  getGifts: (filters: Filters) => Promise<Gift[] | ApplicationError>
+  searchGifts: (input: string) => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
@@ -34,8 +35,12 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     return postgreRepo.updateUser(creds)
   }
 
-  const getGifts = (filters: { channels: string[]; types: string[]; brandTitles: string[] }): Promise<Gift[] | ApplicationError> => {
+  const getGifts = (filters: Filters): Promise<Gift[] | ApplicationError> => {
     return postgreRepo.getGifts(filters)
+  }
+
+  const searchGifts = (input: string): Promise<Gift[] | ApplicationError> => {
+    return postgreRepo.searchGifts(input)
   }
 
   return {
@@ -43,6 +48,7 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     updateUser,
     searchUniqueUser,
     searchUser,
-    getGifts
+    getGifts,
+    searchGifts
   }
 }
