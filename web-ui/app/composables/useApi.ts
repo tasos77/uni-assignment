@@ -29,12 +29,19 @@ export const useApi = () => {
     });
   };
 
-  const getGifts = () => {
-    return client.get("/gifts", {
-      headers: {
-        Authorization: localstorage.get("uniStudentsToken"),
-      },
-    });
+  const getGifts = (
+    channels?: string,
+    types?: string,
+    brandTitles?: string
+  ) => {
+    return client.get(
+      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}`,
+      {
+        headers: {
+          Authorization: localstorage.get("uniStudentsToken"),
+        },
+      }
+    );
   };
 
   return { signIn, signUp, matchUser, updatePassword, getGifts };

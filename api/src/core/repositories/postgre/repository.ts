@@ -8,5 +8,5 @@ export interface PostgreRepository {
   createGifts: (gifts: Gift[]) => Promise<boolean | ApplicationError>
   searchUserBasedOnCredentials: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUserBasedOnEmail: (email: string) => Promise<boolean | ApplicationError>
-  getGifts: () => Promise<Gift[] | ApplicationError>
+  getGifts: (filters: { channels: string[]; types: string[]; brandTitles: string[] }) => Promise<Gift[] | ApplicationError>
 }

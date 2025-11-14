@@ -136,9 +136,28 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const getGifts = async (): Promise<Gift[] | ApplicationError> => {
+  const getGifts = async (filters: { channels: string[]; types: string[]; brandTitles: string[] }): Promise<Gift[] | ApplicationError> => {
+    console.log(filters)
+    const where: any = {}
+    if (filters.channels.length > 0) {
+      where.channel = {
+        in: filters.channels
+      }
+    }
+    if (filters.types.length > 0) {
+      where.type = {
+        in: filters.types
+      }
+    }
+    if (filters.brandTitles.length > 0) {
+      where.brandTitle = {
+        in: filters.brandTitles
+      }
+    }
+
+    console.log(where)
     try {
-      const gifts = await db.gift.findMany()
+      const gifts = await db.gift.findMany({ where })
       return gifts
     } catch (error) {
       return errors.Service('Error getting gifts', {

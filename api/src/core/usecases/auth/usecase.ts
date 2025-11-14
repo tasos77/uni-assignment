@@ -1,4 +1,5 @@
 import { hash } from '../../../infra/utils/hasher'
+import { serializeFilters } from '../../../infra/utils/serializer'
 import { type ApplicationError, errors, isApplicationError } from '../../entities/errors/entity'
 import type { Gift } from '../../entities/gift/entity'
 import type { SignInCreds, User } from '../../entities/user/entity'
@@ -15,7 +16,7 @@ export interface AuthUsecase {
   createUser: (user: User) => Promise<string | ApplicationError>
   matchUser: (email: string) => Promise<string | ApplicationError>
   updatePassword: (creds: SignInCreds, token: string) => Promise<boolean | ApplicationError>
-  getGifts: (token: string) => Promise<Gift[] | ApplicationError>
+  getGifts: (token: string, filters: { channels: string; types: string; brandTitles: string }) => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
@@ -106,9 +107,15 @@ export const make = (deps: AuthUsecaseDeps): AuthUsecase => {
     }
   }
 
-  const getGifts = async (token: string): Promise<Gift[] | ApplicationError> => {
+  const getGifts = async (token: string, filters: { channels: string; types: string; brandTitles: string }): Promise<Gift[] | ApplicationError> => {
     if (token) {
-      return await dbManagerService.getGifts()
+      const serializedFilters = serializeFilters(filters)
+      const result = await dbManagerService.getGifts(serializedFilters)
+
+      if (isApplicationError(result)) {
+        console.log(result.details.details)
+      }
+      return result
     } else {
       return errors.Service('Invalid or missing token', {
         type: 'Internal',

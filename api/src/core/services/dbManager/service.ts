@@ -12,7 +12,7 @@ export interface DBManagerService {
   searchUser: (email: string) => Promise<boolean | ApplicationError>
   createUser: (user: User) => Promise<boolean | ApplicationError>
   updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
-  getGifts: () => Promise<Gift[] | ApplicationError>
+  getGifts: (filters: { channels: string[]; types: string[]; brandTitles: string[] }) => Promise<Gift[] | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
@@ -34,8 +34,8 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     return postgreRepo.updateUser(creds)
   }
 
-  const getGifts = (): Promise<Gift[] | ApplicationError> => {
-    return postgreRepo.getGifts()
+  const getGifts = (filters: { channels: string[]; types: string[]; brandTitles: string[] }): Promise<Gift[] | ApplicationError> => {
+    return postgreRepo.getGifts(filters)
   }
 
   return {

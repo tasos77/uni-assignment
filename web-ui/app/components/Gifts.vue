@@ -10,17 +10,17 @@ const emits = defineEmits(["claim"]);
 </script>
 
 <template>
-  <div class="flex flex-wrap justify-center gap-6">
+  <div class="flex flex-wrap justify-center gap-6 p-2">
     <UCard
       v-for="gift in props.gifts"
       :key="gift.id"
-      class="w-auto h-auto max-w-100 hover:outline-1"
+      class="max-w-200 hover:outline-1"
       variant="soft"
     >
       <template #header>
         <img :src="gift.imageUrl" style="max-height: 430px" />
       </template>
-      <div class="flex flex-col gap-4" style="height: min-content">
+      <div class="flex flex-col gap-4" style="">
         <div>{{ gift.brandTitle }}</div>
         <div class="text-xl">{{ gift.title }}</div>
         <div>{{ gift.description }}</div>

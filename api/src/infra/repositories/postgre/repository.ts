@@ -42,8 +42,8 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.searchUserBasedOnEmail(email)
   }
 
-  const getGifts = (): Promise<Gift[] | ApplicationError> => {
-    return db.getGifts()
+  const getGifts = (filters: { channels: string[]; types: string[]; brandTitles: string[] }): Promise<Gift[] | ApplicationError> => {
+    return db.getGifts(filters)
   }
 
   return {

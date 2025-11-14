@@ -2,7 +2,7 @@ import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
 import { isApplicationError } from '../../../../core/entities/errors/entity'
 import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
-import { AuthHeaderSchema } from '../schemas/requests'
+import { AuthHeaderSchema, GiftsRequestQuerySchema } from '../schemas/requests'
 import { GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
 interface GiftsRouteDeps {
@@ -46,9 +46,15 @@ export const make = (deps: GiftsRouteDeps) => {
       }
     }),
     validator('header', AuthHeaderSchema),
+    validator('query', GiftsRequestQuerySchema),
     async (c) => {
       const { authorization } = c.req.valid('header')
-      const result = await authUsecase.getGifts(authorization)
+      const { channels, types, brandTitles } = c.req.valid('query')
+      const result = await authUsecase.getGifts(authorization, {
+        channels,
+        types,
+        brandTitles
+      })
       if (isApplicationError(result)) {
         throw result
       }
