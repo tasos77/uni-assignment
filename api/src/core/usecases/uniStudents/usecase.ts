@@ -16,8 +16,12 @@ export interface UniStudentsUsecase {
   createUser: (formData: SignUpFormData) => Promise<string | ApplicationError>
   matchUser: (email: string) => Promise<string | ApplicationError>
   updatePassword: (creds: SignInCreds, token: string) => Promise<boolean | ApplicationError>
-  getGifts: (token: string, filters: { channels: string; types: string; brandTitles: string; category: string }, page: number) => Promise<Gift[] | ApplicationError>
-  searchGifts: (token: string, input: string, page: number) => Promise<Gift[] | ApplicationError>
+  getGifts: (
+    token: string,
+    filters: { channels: string; types: string; brandTitles: string; category: string },
+    page: number
+  ) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
+  searchGifts: (token: string, input: string, page: number) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
   getUser: (token: string, email: string) => Promise<User | ApplicationError>
   claimGift: (token: string, email: string, giftId: string) => Promise<boolean | ApplicationError>
 }
