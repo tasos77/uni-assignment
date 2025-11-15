@@ -1,13 +1,15 @@
 import type { ApplicationError } from '../../entities/errors/entity'
 import type { Filters, Gift } from '../../entities/gift/entity'
-import type { SignInCreds, User } from '../../entities/user/entity'
+import type { SignInCreds, SignUpFormData, User } from '../../entities/user/entity'
 
 export interface PostgreRepository {
-  createUser: (user: User) => Promise<boolean | ApplicationError>
+  createUser: (formData: SignUpFormData) => Promise<boolean | ApplicationError>
+  getUser: (email: string) => Promise<User | ApplicationError>
+  claimGift: (email: string, giftId: string) => Promise<boolean | ApplicationError>
   updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
   createGifts: (gifts: Gift[]) => Promise<boolean | ApplicationError>
   searchUserBasedOnCredentials: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUserBasedOnEmail: (email: string) => Promise<boolean | ApplicationError>
-  getGifts: (filters: Filters) => Promise<Gift[] | ApplicationError>
-  searchGifts: (input: string) => Promise<Gift[] | ApplicationError>
+  getGifts: (filters: Filters, page: number) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
+  searchGifts: (input: string, page: number) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
 }

@@ -1,6 +1,12 @@
 <script setup lang="ts">
+import { useInfiniteScroll } from "@vueuse/core";
+
 const api = useApi();
 const gifts = ref([]);
+
+let page: number = 1;
+let totalCount: number = 0;
+let pageSize: number = 5;
 
 let channels: string[] = [];
 let types: string[] = [];
@@ -52,9 +58,11 @@ const getFilteredGifts = (filter: {
   const queryBrantTitles = brandTitles.join(",");
 
   api
-    .getGifts(queryChannels, queryTypes, queryBrantTitles, category)
+    .getGifts(queryChannels, queryTypes, queryBrantTitles, category, page)
     .then((response) => {
-      gifts.value = response.data.gifts;
+      gifts.value = response.data.data.gifts;
+      page = response.data.page;
+      totalCount = response.data.totalCount;
     })
     .catch((err) => {
       console.log(err);
@@ -63,20 +71,52 @@ const getFilteredGifts = (filter: {
 
 const search = (input: string) => {
   api
-    .search(input)
+    .search(input, page)
     .then((response) => {
-      gifts.value = response.data.gifts;
+      gifts.value = response.data.data.gifts;
+      page = response.data.page;
+      totalCount = response.data.totalCount;
     })
     .catch((err) => {
       console.log(err);
     });
 };
 
+const onLoadMore = () => {
+  console.log("more");
+  page++;
+  api
+    .getGifts(queryChannels, queryTypes, queryBrantTitles, category, page)
+    .then((response) => {
+      gifts.value.push(...response.data.data.gifts);
+      page = response.data.page;
+      totalCount = response.data.totalCount;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
+
+const el = useTemplateRef<HTMLElement>("el");
+
+useInfiniteScroll(el, () => onLoadMore(), {
+  distance: 10,
+  canLoadMore: () => {
+    return page <= pages.value;
+  },
+});
+
+const pages = computed(() => {
+  return Math.ceil(totalCount / pageSize);
+});
+
 onMounted(() => {
   api
     .getGifts(queryChannels, queryTypes, queryBrantTitles, category)
     .then((response) => {
-      gifts.value = response.data.gifts;
+      gifts.value = response.data.data.gifts;
+      page = response.data.page;
+      totalCount = response.data.totalCount;
     })
     .catch((err) => {
       console.log(err.response.data);
@@ -85,21 +125,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex justify-between items-center p-4">
-    <Categories @category="getFilteredGifts" />
-    <Search @search="search" />
+  <div ref="el">
+    <div class="flex justify-between items-center p-4">
+      <Categories @category="getFilteredGifts" />
+      <Search @search="search" />
+    </div>
+    <USeparator />
+    <UPage>
+      <UPageBody class="flex justify-start h-1">
+        <Filters
+          @channel="getFilteredGifts"
+          @type="getFilteredGifts"
+          @brand-title="getFilteredGifts"
+        />
+
+        <Gifts :gifts="gifts" @claim="claim" />
+      </UPageBody>
+    </UPage>
   </div>
-  <USeparator />
-  <UPage>
-    <UPageBody class="flex justify-start h-1">
-      <Filters
-        @channel="getFilteredGifts"
-        @type="getFilteredGifts"
-        @brand-title="getFilteredGifts"
-      />
-      <Gifts :gifts="gifts" @claim="claim" />
-    </UPageBody>
-  </UPage>
 </template>
 
 <style scoped></style>

@@ -56,6 +56,10 @@ export const GiftsRequestQuerySchema = z.object({
   category: z.string().optional().meta({
     description: 'String of category',
     example: 'Food'
+  }),
+  page: z.string().min(1).meta({
+    description: 'Page number',
+    example: 1
   })
 })
 
@@ -63,5 +67,31 @@ export const SearchRequestQuerySchema = z.object({
   input: z.string().min(1).meta({
     description: 'Search input',
     example: 'Buy 1 Get 1'
+  }),
+  page: z.string().min(1).meta({
+    description: 'Page number',
+    example: 1
+  })
+})
+
+export const UserRequestQuerySchema = z.object({
+  email: z.email().meta({
+    description: "User's email",
+    example: 'user@example.com'
+  })
+})
+
+export const ClaimGiftRequestSchema = z.object({
+  user: z.object({
+    email: z.email().meta({
+      description: 'User email',
+      example: 'user@example.com'
+    })
+  }),
+  gift: z.object({
+    id: z.string().meta({
+      description: 'Gift ID',
+      example: '1234567890'
+    })
   })
 })

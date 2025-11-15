@@ -3,6 +3,7 @@ export default defineNuxtRouteMiddleware((to) => {
 
   if (to.path === "/list-gifts") {
     const token = storage.get("uniStudentsToken");
+    console.log(token);
     if (!token) {
       return navigateTo("/sign-in");
     }

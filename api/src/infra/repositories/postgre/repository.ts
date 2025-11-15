@@ -2,7 +2,7 @@ import { withAccelerate } from '@prisma/extension-accelerate'
 import { PrismaClient } from '../../../../prisma/generated/client'
 import type { ApplicationError } from '../../../core/entities/errors/entity'
 import type { Filters, Gift } from '../../../core/entities/gift/entity'
-import type { SignInCreds, User } from '../../../core/entities/user/entity'
+import type { SignInCreds, SignUpFormData, User } from '../../../core/entities/user/entity'
 import type { PostgreRepository } from '../../../core/repositories/postgre/repository'
 import type { Logger } from '../../utils/logger'
 import { api } from './api'
@@ -22,12 +22,20 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     throw new Error('Access denied')
   }
 
-  const createUser = async (user: User): Promise<boolean | ApplicationError> => {
-    return db.createUser(user)
+  const createUser = async (formData: SignUpFormData): Promise<boolean | ApplicationError> => {
+    return db.createUser(formData)
+  }
+
+  const getUser = async (email: string): Promise<User | ApplicationError> => {
+    return db.getUser(email)
   }
 
   const updateUser = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
     return db.updateUser(creds)
+  }
+
+  const claimGift = async (email: string, giftId: string): Promise<boolean | ApplicationError> => {
+    return db.claimGift(email, giftId)
   }
 
   const createGifts = (gifts: Gift[]): Promise<boolean | ApplicationError> => {
@@ -42,17 +50,19 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.searchUserBasedOnEmail(email)
   }
 
-  const getGifts = (filters: Filters): Promise<Gift[] | ApplicationError> => {
-    return db.getGifts(filters)
+  const getGifts = (filters: Filters, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return db.getGifts(filters, page)
   }
 
-  const searchGifts = (input: string): Promise<Gift[] | ApplicationError> => {
-    return db.searchGifts(input)
+  const searchGifts = (input: string, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return db.searchGifts(input, page)
   }
 
   return {
     createUser,
+    getUser,
     updateUser,
+    claimGift,
     createGifts,
     searchUserBasedOnCredentials,
     searchUserBasedOnEmail,

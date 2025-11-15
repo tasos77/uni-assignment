@@ -4,8 +4,8 @@ import type { PostgreRepository } from './core/repositories/postgre/repository'
 import type { DBManagerService } from './core/services/dbManager/service'
 import * as dbmService from './core/services/dbManager/service'
 import type { TokenManagerService } from './core/services/tokenManager/service'
-import type { AuthUsecase } from './core/usecases/auth/usecase'
-import * as auUsecase from './core/usecases/auth/usecase'
+import type { UniStudentsUsecase } from './core/usecases/uniStudents/usecase'
+import * as usUsecase from './core/usecases/uniStudents/usecase'
 import { conf as config } from './infra/config'
 import * as aRoute from './infra/controllers/http/auth/route'
 import * as cRoute from './infra/controllers/http/check/route'
@@ -13,6 +13,7 @@ import * as dRoute from './infra/controllers/http/docs/route'
 import * as gRoute from './infra/controllers/http/gifts/route'
 import { onErrorHandler } from './infra/controllers/http/onError'
 import server from './infra/controllers/http/server'
+import * as uRoute from './infra/controllers/http/user/route'
 import * as pgRepo from './infra/repositories/postgre/repository'
 import * as tmService from './infra/services/tokenManager/service'
 import { logger } from './infra/utils/logger'
@@ -35,11 +36,12 @@ const dbManagerService: DBManagerService = dbmService.make({ postgreRepo })
 const tokenManagerService: TokenManagerService = tmService.make({ config })
 
 // init usecases
-const authUsecase: AuthUsecase = auUsecase.make({ dbManagerService, tokenManagerService })
+const uniStudentsUsecase: UniStudentsUsecase = usUsecase.make({ dbManagerService, tokenManagerService })
 
 // init routes
-const authRoute: Hono = aRoute.make({ authUsecase })
-const giftsRoute: Hono = gRoute.make({ authUsecase })
+const authRoute: Hono = aRoute.make({ uniStudentsUsecase })
+const giftsRoute: Hono = gRoute.make({ uniStudentsUsecase })
+const userRoute: Hono = uRoute.make({ uniStudentsUsecase })
 const checkRoute: Hono = cRoute.make()
 
 // use routes
@@ -47,6 +49,7 @@ const basePath = '/api/v1'
 server.route(basePath, checkRoute)
 server.route(basePath, authRoute)
 server.route(basePath, giftsRoute)
+server.route(basePath, userRoute)
 
 // generate docs from route instances
 const docsRoute: Hono = dRoute.make({ server })

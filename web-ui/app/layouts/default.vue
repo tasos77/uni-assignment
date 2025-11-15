@@ -23,7 +23,6 @@ const logout = () => {
         @click="logout"
         color="neutral"
         variant="ghost"
-        to="/sign-in"
         target="_blank"
         icon="i-lucide-log-out"
       />

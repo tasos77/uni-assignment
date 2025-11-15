@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { GiftSchema } from '../../../../core/entities/gift/entity'
+import { UserSchema } from '../../../../core/entities/user/entity'
 
 export const SignInResponseSchema = z.object({
   token: z.string().meta({
@@ -22,7 +23,31 @@ export const OneTimeTokenResponseSchema = z.object({
   })
 })
 
-export const GiftsResponseSchema = z.array(GiftSchema)
+export const PasswordUpdatedResponseSchema = z.object({
+  message: z.string().meta({
+    description: 'Password updated successfully',
+    example: 'Password updated successfully'
+  })
+})
+
+export const ClaimGiftResponseSchema = z.object({
+  message: z.string().meta({
+    description: 'Gift claimed successfully',
+    example: 'Gift claimed successfully'
+  })
+})
+
+export const GiftsResponseSchema = z.object({
+  data: z.object({
+    gifts: z.array(GiftSchema),
+    totalCount: z.number(),
+    page: z.number()
+  })
+})
+
+export const UserResponseSchema = z.object({
+  user: UserSchema
+})
 
 /// Error responses ///
 export const BadRequestResponseSchema = z.union([
@@ -40,7 +65,14 @@ export const BadRequestResponseSchema = z.union([
 export const UnauthorizedResponseSchema = z.object({
   error: z.string().meta({
     description: 'Unauthorized',
-    example: 'Unauthorized User'
+    example: 'Unauthorized'
+  })
+})
+
+export const NotFoundResponseSchema = z.object({
+  error: z.string().meta({
+    description: 'User not found',
+    example: 'User not found'
   })
 })
 
@@ -48,12 +80,5 @@ export const InternalServerErrorResponseSchema = z.object({
   error: z.string().meta({
     description: 'Internal Server Error',
     example: 'Internal Server Error'
-  })
-})
-
-export const PasswordUpdatedResponseSchema = z.object({
-  message: z.string().meta({
-    description: 'Password updated successfully',
-    example: 'Password updated successfully'
   })
 })

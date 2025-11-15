@@ -1,17 +1,17 @@
 import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
 import { isApplicationError } from '../../../../core/entities/errors/entity'
-import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
-import { AuthHeaderSchema, GiftsRequestQuerySchema, SearchRequestQuerySchema } from '../schemas/requests'
-import { GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
+import type { UniStudentsUsecase } from '../../../../core/usecases/uniStudents/usecase'
+import { AuthHeaderSchema, ClaimGiftRequestSchema, GiftsRequestQuerySchema, SearchRequestQuerySchema } from '../schemas/requests'
+import { ClaimGiftResponseSchema, GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
 interface GiftsRouteDeps {
-  authUsecase: AuthUsecase
+  uniStudentsUsecase: UniStudentsUsecase
 }
 
-export const make = (deps: GiftsRouteDeps) => {
+export const make = (deps: GiftsRouteDeps): Hono => {
   const route = new Hono()
-  const { authUsecase } = deps
+  const { uniStudentsUsecase } = deps
 
   route.get(
     '/gifts',
@@ -45,22 +45,45 @@ export const make = (deps: GiftsRouteDeps) => {
         }
       }
     }),
-    validator('header', AuthHeaderSchema),
-    validator('query', GiftsRequestQuerySchema),
+    validator('header', AuthHeaderSchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid authorization token'
+          },
+          400
+        )
+      }
+    }),
+    validator('query', GiftsRequestQuerySchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid query params'
+          },
+          400
+        )
+      }
+    }),
     async (c) => {
       const { authorization } = c.req.valid('header')
-      const { channels, types, brandTitles, category } = c.req.valid('query')
-      const result = await authUsecase.getGifts(authorization, {
-        channels,
-        types,
-        brandTitles,
-        category
-      })
+      const { channels, types, brandTitles, category, page } = c.req.valid('query')
+
+      const result = await uniStudentsUsecase.getGifts(
+        authorization,
+        {
+          channels,
+          types,
+          brandTitles,
+          category
+        },
+        parseInt(page)
+      )
       if (isApplicationError(result)) {
         throw result
       }
       return c.json({
-        gifts: result
+        data: result
       })
     }
   )
@@ -97,17 +120,100 @@ export const make = (deps: GiftsRouteDeps) => {
         }
       }
     }),
-    validator('header', AuthHeaderSchema),
-    validator('query', SearchRequestQuerySchema),
+    validator('header', AuthHeaderSchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid authorization token'
+          },
+          400
+        )
+      }
+    }),
+    validator('query', SearchRequestQuerySchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid query params'
+          },
+          400
+        )
+      }
+    }),
     async (c) => {
       const { authorization } = c.req.valid('header')
-      const { input } = c.req.valid('query')
-      const result = await authUsecase.searchGifts(authorization, input)
+      const { input, page } = c.req.valid('query')
+      const result = await uniStudentsUsecase.searchGifts(authorization, input, parseInt(page))
       if (isApplicationError(result)) {
         throw result
       }
       return c.json({
-        gifts: result
+        data: result
+      })
+    }
+  )
+
+  route.post(
+    '/gifts/claim',
+    describeRoute({
+      summary: 'Claim gift',
+      description: 'Claim gift',
+      responses: {
+        200: {
+          description: 'User found',
+          content: {
+            'application/json': {
+              schema: resolver(ClaimGiftResponseSchema)
+            }
+          }
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: resolver(UnauthorizedResponseSchema)
+            }
+          }
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: resolver(InternalServerErrorResponseSchema)
+            }
+          }
+        }
+      }
+    }),
+    validator('header', AuthHeaderSchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid authorization token'
+          },
+          400
+        )
+      }
+    }),
+    validator('json', ClaimGiftRequestSchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid query params'
+          },
+          400
+        )
+      }
+    }),
+    async (c) => {
+      const { authorization } = c.req.valid('header')
+      const { user, gift } = c.req.valid('json')
+      const result = await uniStudentsUsecase.claimGift(authorization, user.email, gift.id)
+      if (isApplicationError(result)) {
+        throw result
+      }
+      return c.json({
+        message: 'Gift claimed successfully'
       })
     }
   )

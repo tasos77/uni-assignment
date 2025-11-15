@@ -4,11 +4,13 @@ import type { Filters, Gift } from '../../../core/entities/gift/entity'
 import type { SignInCreds, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
+const pageSize = 5
+
 export const api = (db: PrismaClient, logger: Logger) => {
   const checkAccess = async (): Promise<boolean | ApplicationError> => {
     try {
-      const result = await db.$executeRaw`SELECT version();`
-      logger.info(`Database version ${result}`)
+      await db.$executeRaw`SELECT version();`
+      logger.info(`DB Connection successful!`)
       return true
     } catch (error) {
       return errors.Service('Error checking database access', {
@@ -96,6 +98,32 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const getUser = async (email: string): Promise<User | ApplicationError> => {
+    try {
+      const user = await db.user.findUnique({
+        where: {
+          email
+        },
+        include: { claimedGifts: true }
+      })
+      if (!user) {
+        return errors.EntityNotFound('User not found', {
+          query: `email:${email}`,
+          system: 'PostgreSQL'
+        })
+      }
+      return user
+    } catch (error) {
+      return errors.Service('Error getting user based on email from db', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Search User',
+        reason: 'Failed to find user based on email',
+        value: (error as Error).message
+      })
+    }
+  }
+
   const updateUser = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
     const { email, password } = creds
     try {
@@ -119,6 +147,32 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
+  const claimGift = async (email: string, giftId: string): Promise<boolean | ApplicationError> => {
+    try {
+      await db.user.update({
+        where: {
+          email
+        },
+        data: {
+          claimedGifts: {
+            connect: {
+              id: giftId
+            }
+          }
+        }
+      })
+      return true
+    } catch (error) {
+      return errors.Service('Error claiming gift', {
+        type: 'External',
+        system: 'PostgreSQL',
+        serviceName: 'Claim Gift',
+        reason: 'Failed to claim gift',
+        value: (error as Error).message
+      })
+    }
+  }
+
   const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     try {
       await db.gift.createMany({
@@ -136,7 +190,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const getGifts = async (filters: Filters): Promise<Gift[] | ApplicationError> => {
+  const getGifts = async (filters: Filters, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
     const where: any = {}
     if (filters.channels.length > 0) {
       where.channel = {
@@ -158,8 +212,8 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
 
     try {
-      const gifts = await db.gift.findMany({ where })
-      return gifts
+      const [gifts, totalCount] = await db.$transaction([db.gift.findMany({ where, skip: (page - 1) * pageSize, take: pageSize }), db.gift.count({ where })])
+      return { gifts, totalCount, page }
     } catch (error) {
       return errors.Service('Error getting gifts', {
         type: 'External',
@@ -171,14 +225,21 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const searchGifts = async (input: string): Promise<Gift[] | ApplicationError> => {
+  const searchGifts = async (input: string, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
     try {
-      const gifts = await db.gift.findMany({
-        where: {
-          title: { contains: input, mode: 'insensitive' }
-        }
-      })
-      return gifts
+      const [gifts, totalCount] = await db.$transaction([
+        db.gift.findMany({
+          where: {
+            title: { contains: input, mode: 'insensitive' }
+          },
+          skip: (page - 1) * pageSize,
+          take: pageSize
+        }),
+        db.gift.count({
+          where: { title: { contains: input, mode: 'insensitive' } }
+        })
+      ])
+      return { gifts, totalCount, page }
     } catch (error) {
       return errors.Service('Error searching gifts', {
         type: 'External',
@@ -193,11 +254,13 @@ export const api = (db: PrismaClient, logger: Logger) => {
   return {
     checkAccess,
     createUser,
+    getUser,
     updateUser,
     createGifts,
     searchUserBasedOnCredentials,
     searchUserBasedOnEmail,
     getGifts,
-    searchGifts
+    searchGifts,
+    claimGift
   }
 }

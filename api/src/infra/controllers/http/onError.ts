@@ -6,6 +6,9 @@ export const onErrorHandler: ErrorHandler = async (err: unknown, c: Context) => 
     if (err.details.kind === 'EntityNotFound') {
       return c.json({ error: err.message }, 400)
     }
+    if (err.details.kind === 'Service' && err.details.details.reason === 'Invalid token') {
+      return c.json({ error: 'Unauthorized' }, 401)
+    }
     if (err.details.kind === 'Service') {
       return c.json({ error: err.message }, 500)
     }

@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { describeRoute, resolver, validator } from 'hono-openapi'
 import { isApplicationError } from '../../../../core/entities/errors/entity'
-import type { AuthUsecase } from '../../../../core/usecases/auth/usecase'
+import type { UniStudentsUsecase } from '../../../../core/usecases/uniStudents/usecase'
 import { AuthHeaderSchema, MatchUserRequestBodySchema, SignInRequestBodySchema, SignUpRequestBodySchema } from '../schemas/requests'
 import {
   BadRequestResponseSchema,
@@ -14,12 +14,12 @@ import {
 } from '../schemas/responses'
 
 interface AuthRouteDeps {
-  authUsecase: AuthUsecase
+  uniStudentsUsecase: UniStudentsUsecase
 }
 
 export const make = (deps: AuthRouteDeps): Hono => {
   const route = new Hono()
-  const { authUsecase } = deps
+  const { uniStudentsUsecase } = deps
 
   route.post(
     '/sign-in',
@@ -61,10 +61,19 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', SignInRequestBodySchema),
+    validator('json', SignInRequestBodySchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid request body'
+          },
+          400
+        )
+      }
+    }),
     async (c) => {
       const { email, password } = await c.req.json()
-      const result = await authUsecase.authenticateUser({ email, password })
+      const result = await uniStudentsUsecase.authenticateUser({ email, password })
       if (isApplicationError(result)) {
         throw result
       }
@@ -106,10 +115,19 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', SignUpRequestBodySchema),
+    validator('json', SignUpRequestBodySchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid request body'
+          },
+          400
+        )
+      }
+    }),
     async (c) => {
       const { email, password, fullName } = await c.req.json()
-      const result = await authUsecase.createUser({ email, password, fullName })
+      const result = await uniStudentsUsecase.createUser({ email, password, fullName })
       if (isApplicationError(result)) {
         throw result
       }
@@ -151,10 +169,19 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
-    validator('json', MatchUserRequestBodySchema),
+    validator('json', MatchUserRequestBodySchema, (result, c) => {
+      if (!result.success) {
+        return c.json(
+          {
+            error: 'Invalid request body'
+          },
+          400
+        )
+      }
+    }),
     async (c) => {
       const { email } = await c.req.json()
-      const result = await authUsecase.matchUser(email)
+      const result = await uniStudentsUsecase.matchUser(email)
       if (isApplicationError(result)) {
         throw result
       }
@@ -209,7 +236,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
     async (c) => {
       const { email, password } = c.req.valid('json')
       const { authorization } = c.req.valid('header')
-      const result = await authUsecase.updatePassword({ email, password }, authorization)
+      const result = await uniStudentsUsecase.updatePassword({ email, password }, authorization)
       if (isApplicationError(result)) {
         throw result
       }

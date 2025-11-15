@@ -33,10 +33,11 @@ export const useApi = () => {
     channels?: string,
     types?: string,
     brandTitles?: string,
-    category?: string
+    category?: string,
+    page: number = 1
   ) => {
     return client.get(
-      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}`,
+      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&page=${page}`,
       {
         headers: {
           Authorization: localstorage.get("uniStudentsToken"),
@@ -45,8 +46,8 @@ export const useApi = () => {
     );
   };
 
-  const search = (input: string) => {
-    return client.get(`/gifts/search?input=${input}`, {
+  const search = (input: string, page: number = 1) => {
+    return client.get(`/gifts/search?input=${input}&page=${page}`, {
       headers: {
         Authorization: localstorage.get("uniStudentsToken"),
       },
