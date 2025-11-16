@@ -21,14 +21,39 @@ const fields: AuthFormField[] = [
     placeholder: "Enter your password",
     required: true,
   },
+  {
+    name: "fullName",
+    label: "Full name",
+    type: "text",
+    placeholder: "Enter your full name",
+    required: true,
+  },
 ];
 
 const api = useApi();
+const showError = ref(false);
+const showSuccess = ref(false);
+const errorText = ref("");
+const loading = ref(false);
 
 const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
-  console.log("Submitted", payload);
-  const result = await api.signUp(payload);
-  console.log(result);
+  const { email, password, fullName } = payload.data;
+  showError.value = false;
+  showSuccess.value = false;
+  loading.value = true;
+  api
+    .signUp({ email, password, fullName })
+    .then((response) => {
+      loading.value = false;
+      showSuccess.value = true;
+    })
+    .catch((err) => {
+      loading.value = false;
+      errorText.value = err?.response?.data?.error
+        ? err.response.data.error
+        : "Failed to sign up!";
+      showError.value = true;
+    });
 };
 </script>
 
@@ -36,6 +61,7 @@ const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
   <div class="flex flex-col items-center justify-center gap-4 p-4">
     <UPageCard class="w-full max-w-md">
       <UAuthForm
+        :loading="loading"
         :schema="SignUpFormDataSchema"
         :fields="fields"
         title="Sign Up"
@@ -46,8 +72,20 @@ const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
           Already have an account?
           <ULink to="/sign-in" class="text-primary font-medium">Sign in</ULink>.
         </template>
+
         <template #validation>
-          <UAlert color="error" icon="i-lucide-info" title="Error signing up" />
+          <UAlert
+            v-if="showSuccess"
+            color="success"
+            icon="i-lucide-info"
+            title="User created!"
+          />
+          <UAlert
+            v-if="showError"
+            color="error"
+            icon="i-lucide-info"
+            :title="errorText"
+          />
         </template>
       </UAuthForm>
     </UPageCard>

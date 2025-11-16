@@ -10,7 +10,8 @@ export const GiftSchema = z.object({
   brandLogoUrl: z.string(),
   imageUrl: z.string(),
   type: z.string(),
-  channel: z.string()
+  channel: z.string(),
+  status: z.string()
 })
 
 export const FiltersSchema = z.object({

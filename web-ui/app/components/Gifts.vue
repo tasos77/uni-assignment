@@ -1,12 +1,21 @@
 <script setup lang="ts">
-import type { Gift } from "~/models/common";
+import type { Gift, User } from "~/models/common";
 
 interface Props {
   gifts: Gift[];
+  user: User;
+  loading: boolean;
+  error: boolean;
 }
 
 const props = defineProps<Props>();
-const emits = defineEmits(["claim"]);
+const emit = defineEmits(["claim"]);
+
+const isClaimed = (gift: Gift) => {
+  return props.user.claimedGifts?.some(
+    (claimedGift) => claimedGift.id === gift.id
+  );
+};
 </script>
 
 <template>
@@ -15,6 +24,7 @@ const emits = defineEmits(["claim"]);
       v-for="gift in props.gifts"
       :key="gift.id"
       class="max-w-180 hover:outline-1"
+      :class="isClaimed(gift) ? 'hover:outline-green-500' : 'hover:outline'"
       variant="soft"
     >
       <template #header>
@@ -28,22 +38,32 @@ const emits = defineEmits(["claim"]);
           Terms:
           <span class="opacity-45 italic">{{ gift.terms }}</span>
         </div>
-        <div class="flex justify-end">
-          <img
-            :src="gift.brandLogoUrl"
-            width="40"
-            height="40"
-            class="rounded-full"
+        <div class="flex justify-between">
+          <UBadge
+            :label="gift.status === 'NEW_IN' ? 'New In' : 'Ending Soon'"
+            variant="subtle"
+            :color="gift.status === 'NEW_IN' ? 'success' : 'error'"
           />
+          <div>
+            <img
+              :src="gift.brandLogoUrl"
+              width="40"
+              height="40"
+              class="rounded-full"
+            />
+          </div>
         </div>
       </div>
       <template #footer>
-        <div class="flex justify-end">
+        <div class="flex justify-end items-end flex-col gap-2">
           <UButton
-            label="Claim"
+            :disabled="isClaimed(gift)"
+            :loading="props.loading"
+            :label="isClaimed(gift) ? 'Claimed' : 'Claim'"
             class="cursor-pointer"
-            @click="emits('claim', gift.id)"
+            @click="emit('claim', gift.id)"
           />
+          <div v-if="props.error" class="text-error">Failed to claim gift!</div>
         </div>
       </template>
     </UCard>

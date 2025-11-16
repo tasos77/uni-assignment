@@ -38,6 +38,7 @@ const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
     .then((response) => {
       loading.value = false;
       localstorage.set("uniStudentsToken", response.data.token);
+      localstorage.set("uniStudentsUserEmail", email);
       navigateTo("/list-gifts");
     })
     .catch((err) => {

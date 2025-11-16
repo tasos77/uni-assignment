@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const emit = defineEmits(["channel", "type", "brandTitle"]);
+import type { RadioGroupItem } from "@nuxt/ui";
+
+const emit = defineEmits(["channel", "type", "brandTitle", "sortBy"]);
 
 const online = ref(false);
 const instore = ref(false);
@@ -11,6 +13,18 @@ const bakeryBite = ref(false);
 const pizzaWorld = ref(false);
 const coffeeCentral = ref(false);
 const barHub = ref(false);
+
+const sortItems = ref<RadioGroupItem[]>([
+  {
+    label: "New in",
+    value: "NEW_IN",
+  },
+  {
+    label: "Ending soon",
+    value: "ENDING_SOON",
+  },
+]);
+const sortValue = ref("NEW_IN");
 </script>
 
 <template>
@@ -18,7 +32,7 @@ const barHub = ref(false);
     <div class="flex flex-col items-center">
       <div class="text-2xl text-center mb-4">Filters</div>
       <USeparator />
-      <div class="flex flex-col gap-5 mt-4">
+      <div class="flex flex-col gap-5 mt-4 mb-4">
         <div>
           <div>Online / Instore</div>
           <UCheckbox
@@ -119,6 +133,20 @@ const barHub = ref(false);
           />
         </div>
       </div>
+
+      <div class="text-2xl text-center mb-4">Sort By</div>
+      <USeparator />
+      <URadioGroup
+        v-model="sortValue"
+        :items="sortItems"
+        class="mt-4"
+        @change="
+          emit('sortBy', {
+            flag: 'sort',
+            key: sortValue,
+          })
+        "
+      />
     </div>
   </UDashboardSidebar>
 </template>

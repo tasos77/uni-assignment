@@ -57,9 +57,9 @@ export const GiftsRequestQuerySchema = z.object({
     description: 'String of category',
     example: 'Food'
   }),
-  page: z.string().min(1).meta({
-    description: 'Page number',
-    example: 1
+  sort: z.string().meta({
+    description: 'String of sort',
+    example: 'NEW_IN'
   })
 })
 
@@ -68,9 +68,9 @@ export const SearchRequestQuerySchema = z.object({
     description: 'Search input',
     example: 'Buy 1 Get 1'
   }),
-  page: z.string().min(1).meta({
-    description: 'Page number',
-    example: 1
+  sort: z.string().meta({
+    description: 'String of sort',
+    example: 'NEW_IN'
   })
 })
 

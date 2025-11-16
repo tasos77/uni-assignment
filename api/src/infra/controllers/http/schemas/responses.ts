@@ -10,9 +10,9 @@ export const SignInResponseSchema = z.object({
 })
 
 export const SignUpResponseSchema = z.object({
-  token: z.string().meta({
-    description: 'Password updateded successfully',
-    example: 'Password updateded successfully'
+  message: z.string().meta({
+    description: 'User created successfully',
+    example: 'User created successfully'
   })
 })
 
@@ -39,9 +39,7 @@ export const ClaimGiftResponseSchema = z.object({
 
 export const GiftsResponseSchema = z.object({
   data: z.object({
-    gifts: z.array(GiftSchema),
-    totalCount: z.number(),
-    page: z.number()
+    gifts: z.array(GiftSchema)
   })
 })
 

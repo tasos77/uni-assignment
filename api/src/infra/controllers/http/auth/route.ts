@@ -180,7 +180,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
       }
     }),
     async (c) => {
-      const { email } = await c.req.json()
+      const { email } = c.req.valid('json')
       const result = await uniStudentsUsecase.matchUser(email)
       if (isApplicationError(result)) {
         throw result

@@ -10,6 +10,6 @@ export interface PostgreRepository {
   createGifts: (gifts: Gift[]) => Promise<boolean | ApplicationError>
   searchUserBasedOnCredentials: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUserBasedOnEmail: (email: string) => Promise<boolean | ApplicationError>
-  getGifts: (filters: Filters, page: number) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
-  searchGifts: (input: string, page: number) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
+  getGifts: (filters: Filters, sort: string) => Promise<{ gifts: Gift[] } | ApplicationError>
+  searchGifts: (input: string, sort: string) => Promise<{ gifts: Gift[] } | ApplicationError>
 }

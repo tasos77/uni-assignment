@@ -96,6 +96,7 @@ function generateOffer(store) {
 
   const type = faker.helpers.arrayElement(['student-discount', 'freebie', 'general-sale'])
   const channel = faker.helpers.arrayElement(['online', 'instore'])
+  const status = faker.helpers.arrayElement(['NEW_IN', 'ENDING_SOON'])
 
   return {
     title,
@@ -106,7 +107,8 @@ function generateOffer(store) {
     brandLogoUrl: store.logo,
     imageUrl: store.image,
     type,
-    channel
+    channel,
+    status
   }
 }
 

@@ -9,7 +9,6 @@ export const useApi = () => {
   });
 
   const signIn = (creds: SignInCreds) => {
-    console.log(creds);
     return client.post("/sign-in", creds);
   };
 
@@ -18,13 +17,15 @@ export const useApi = () => {
   };
 
   const matchUser = (email: Email) => {
-    return client.post("/match-user", email);
+    return client.post("/match-user", {
+      email,
+    });
   };
 
-  const updatePassword = (creds: SignInCreds) => {
+  const updatePassword = (creds: SignInCreds, oneTimeToken: string) => {
     return client.post("update-password", creds, {
       headers: {
-        Authorization: localstorage.get("uniStudentsToken"),
+        Authorization: oneTimeToken,
       },
     });
   };
@@ -34,10 +35,10 @@ export const useApi = () => {
     types?: string,
     brandTitles?: string,
     category?: string,
-    page: number = 1
+    sortBy: string = "new_in"
   ) => {
     return client.get(
-      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&page=${page}`,
+      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&sort=${sortBy}`,
       {
         headers: {
           Authorization: localstorage.get("uniStudentsToken"),
@@ -46,13 +47,49 @@ export const useApi = () => {
     );
   };
 
-  const search = (input: string, page: number = 1) => {
-    return client.get(`/gifts/search?input=${input}&page=${page}`, {
+  const search = (input: string, sortBy: string = "new_in") => {
+    return client.get(`/gifts/search?input=${input}&sort=${sortBy}`, {
       headers: {
         Authorization: localstorage.get("uniStudentsToken"),
       },
     });
   };
 
-  return { signIn, signUp, matchUser, updatePassword, getGifts, search };
+  const claim = (usersEmail: string, giftId: string) => {
+    return client.post(
+      "/gifts/claim",
+      {
+        gift: {
+          id: giftId,
+        },
+        user: {
+          email: usersEmail,
+        },
+      },
+      {
+        headers: {
+          Authorization: localstorage.get("uniStudentsToken"),
+        },
+      }
+    );
+  };
+
+  const getUser = (usersEmail: string) => {
+    return client.get(`/user?email=${usersEmail}`, {
+      headers: {
+        Authorization: localstorage.get("uniStudentsToken"),
+      },
+    });
+  };
+
+  return {
+    signIn,
+    signUp,
+    matchUser,
+    updatePassword,
+    getGifts,
+    search,
+    claim,
+    getUser,
+  };
 };

@@ -4,8 +4,6 @@ import type { Filters, Gift } from '../../../core/entities/gift/entity'
 import type { SignInCreds, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
-const pageSize = 5
-
 export const api = (db: PrismaClient, logger: Logger) => {
   const checkAccess = async (): Promise<boolean | ApplicationError> => {
     try {
@@ -112,7 +110,11 @@ export const api = (db: PrismaClient, logger: Logger) => {
           system: 'PostgreSQL'
         })
       }
-      return user
+      return {
+        email: user.email,
+        fullName: user.fullName,
+        claimedGifts: user.claimedGifts
+      }
     } catch (error) {
       return errors.Service('Error getting user based on email from db', {
         type: 'External',
@@ -174,6 +176,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
   }
 
   const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
+    console.log(gifts)
     try {
       await db.gift.createMany({
         data: gifts
@@ -190,8 +193,9 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const getGifts = async (filters: Filters, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+  const getGifts = async (filters: Filters, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
     const where: any = {}
+    const sortBy = sort === 'new_in' ? { status: 'asc' } : { status: 'desc' }
     if (filters.channels.length > 0) {
       where.channel = {
         in: filters.channels
@@ -212,8 +216,8 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
 
     try {
-      const [gifts, totalCount] = await db.$transaction([db.gift.findMany({ where, skip: (page - 1) * pageSize, take: pageSize }), db.gift.count({ where })])
-      return { gifts, totalCount, page }
+      const gifts = await db.gift.findMany({ where, orderBy: sortBy })
+      return { gifts }
     } catch (error) {
       return errors.Service('Error getting gifts', {
         type: 'External',
@@ -225,21 +229,16 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const searchGifts = async (input: string, page: number): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+  const searchGifts = async (input: string, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
+    const sortBy = sort === 'NEW_IN' ? { status: 'asc' } : { status: 'desc' }
     try {
-      const [gifts, totalCount] = await db.$transaction([
-        db.gift.findMany({
-          where: {
-            title: { contains: input, mode: 'insensitive' }
-          },
-          skip: (page - 1) * pageSize,
-          take: pageSize
-        }),
-        db.gift.count({
-          where: { title: { contains: input, mode: 'insensitive' } }
-        })
-      ])
-      return { gifts, totalCount, page }
+      const gifts = await db.gift.findMany({
+        where: {
+          title: { contains: input, mode: 'insensitive' }
+        },
+        orderBy: sortBy
+      })
+      return { gifts }
     } catch (error) {
       return errors.Service('Error searching gifts', {
         type: 'External',

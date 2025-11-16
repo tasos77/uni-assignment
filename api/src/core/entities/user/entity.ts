@@ -14,7 +14,6 @@ const SignInCredsSchema = z.object({
 
 export const UserSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(4),
   fullName: z.string().min(2),
   claimedGifts: z.array(GiftSchema).optional()
 })

@@ -67,7 +67,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
     }),
     async (c) => {
       const { authorization } = c.req.valid('header')
-      const { channels, types, brandTitles, category, page } = c.req.valid('query')
+      const { channels, types, brandTitles, category, sort } = c.req.valid('query')
 
       const result = await uniStudentsUsecase.getGifts(
         authorization,
@@ -77,7 +77,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
           brandTitles,
           category
         },
-        parseInt(page)
+        sort
       )
       if (isApplicationError(result)) {
         throw result
@@ -142,8 +142,8 @@ export const make = (deps: GiftsRouteDeps): Hono => {
     }),
     async (c) => {
       const { authorization } = c.req.valid('header')
-      const { input, page } = c.req.valid('query')
-      const result = await uniStudentsUsecase.searchGifts(authorization, input, parseInt(page))
+      const { input, sort } = c.req.valid('query')
+      const result = await uniStudentsUsecase.searchGifts(authorization, input, sort)
       if (isApplicationError(result)) {
         throw result
       }

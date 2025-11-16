@@ -16,6 +16,11 @@ model User {
   claimedGifts Gift[] @relation("ClaimedGifts") // optional relation many to many (ensure the gift independance)
 }
 
+enum GiftStatus {
+  NEW_IN
+  ENDING_SOON
+}
+
 model Gift {
   id               String   @id @default(uuid()) // primary key and unique by default
   title            String
@@ -27,5 +32,6 @@ model Gift {
   imageUrl         String
   type             String
   channel          String
+  status           GiftStatus @default(NEW_IN) // use for sorting
   claimedBy        User[] @relation("ClaimedGifts") // relation to users
 }
