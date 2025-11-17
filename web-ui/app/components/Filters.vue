@@ -139,7 +139,6 @@ const sortValue = ref("NEW_IN");
           />
         </div>
       </div>
-      ">
       <!---------- Sorters ---------->
       <div class="text-2xl text-center mb-4">Sort By</div>
       <USeparator />
