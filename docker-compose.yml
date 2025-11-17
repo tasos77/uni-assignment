@@ -39,6 +39,6 @@ services:
     ports:
       - 3001:3001
     environment:
-      API_BASE_URL: ${NUXT_PUBLIC_API_BASE_URL}
+      NUXT_PUBLIC_API_BASE_URL: ${NUXT_PUBLIC_API_BASE_URL}
     depends_on:
       - api
