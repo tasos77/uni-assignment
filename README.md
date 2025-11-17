@@ -3,7 +3,6 @@
 This project implements an end to end solution for users to claim gifts.
 
 ### Requirements
-- bun runtime
 - Docker compose
 
 ----
