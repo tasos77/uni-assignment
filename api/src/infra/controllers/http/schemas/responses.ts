@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { GiftSchema } from '../../../../core/entities/gift/entity'
 import { UserSchema } from '../../../../core/entities/user/entity'
 
+//// Response schemas ////
 export const SignInResponseSchema = z.object({
   token: z.string().meta({
     description: 'JWT token for authentication',

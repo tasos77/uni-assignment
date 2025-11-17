@@ -7,10 +7,12 @@ import type { PostgreRepository } from '../../../core/repositories/postgre/repos
 import type { Logger } from '../../utils/logger'
 import { api } from './api'
 
+// postgre repository dependencies schema
 export interface PostgreRepositoryDeps {
   logger: Logger
 }
 
+// postgre repository implementation
 export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreRepository> => {
   const { logger } = deps
 

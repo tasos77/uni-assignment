@@ -5,14 +5,17 @@ import type { UniStudentsUsecase } from '../../../../core/usecases/uniStudents/u
 import { AuthHeaderSchema, UserRequestQuerySchema } from '../schemas/requests'
 import { InternalServerErrorResponseSchema, UnauthorizedResponseSchema, UserResponseSchema } from '../schemas/responses'
 
+// user route dependencies schema
 interface UserRouteDeps {
   uniStudentsUsecase: UniStudentsUsecase
 }
 
+// user route implementation
 export const make = (deps: UserRouteDeps): Hono => {
   const route = new Hono()
   const { uniStudentsUsecase } = deps
 
+  // user endpoint implementation
   route.get(
     '/user',
     describeRoute({
@@ -45,6 +48,7 @@ export const make = (deps: UserRouteDeps): Hono => {
         }
       }
     }),
+    // validate header
     validator('header', AuthHeaderSchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -55,6 +59,7 @@ export const make = (deps: UserRouteDeps): Hono => {
         )
       }
     }),
+    // validate query
     validator('query', UserRequestQuerySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -66,12 +71,17 @@ export const make = (deps: UserRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get token from header
       const { authorization } = c.req.valid('header')
+      // get query params
       const { email } = c.req.valid('query')
+      // use usecase
       const result = await uniStudentsUsecase.getUser(authorization, email)
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return user
       return c.json({
         user: result
       })

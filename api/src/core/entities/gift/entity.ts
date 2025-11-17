@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// gift schema
 export const GiftSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -14,6 +15,7 @@ export const GiftSchema = z.object({
   status: z.string()
 })
 
+// filters schema
 export const FiltersSchema = z.object({
   channels: z.array(z.string()),
   types: z.array(z.string()),
@@ -21,5 +23,6 @@ export const FiltersSchema = z.object({
   category: z.string()
 })
 
+// types infered from schemas
 export type Gift = z.infer<typeof GiftSchema>
 export type Filters = z.infer<typeof FiltersSchema>

@@ -5,14 +5,17 @@ import type { UniStudentsUsecase } from '../../../../core/usecases/uniStudents/u
 import { AuthHeaderSchema, ClaimGiftRequestSchema, GiftsRequestQuerySchema, SearchRequestQuerySchema } from '../schemas/requests'
 import { ClaimGiftResponseSchema, GiftsResponseSchema, InternalServerErrorResponseSchema, UnauthorizedResponseSchema } from '../schemas/responses'
 
+// gifts route dependencies schema
 interface GiftsRouteDeps {
   uniStudentsUsecase: UniStudentsUsecase
 }
 
+// gift route implementation
 export const make = (deps: GiftsRouteDeps): Hono => {
   const route = new Hono()
   const { uniStudentsUsecase } = deps
 
+  // gifts endpoint implementation
   route.get(
     '/gifts',
     describeRoute({
@@ -45,6 +48,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         }
       }
     }),
+    // validate header
     validator('header', AuthHeaderSchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -55,6 +59,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         )
       }
     }),
+    // validate query params
     validator('query', GiftsRequestQuerySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -66,9 +71,11 @@ export const make = (deps: GiftsRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get token from header
       const { authorization } = c.req.valid('header')
+      // get query params
       const { channels, types, brandTitles, category, page, sort } = c.req.valid('query')
-
+      // use usecase
       const result = await uniStudentsUsecase.getGifts(
         authorization,
         {
@@ -80,15 +87,18 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         parseInt(page),
         sort
       )
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return json with data
       return c.json({
         data: result
       })
     }
   )
 
+  // search endpoint implemenation
   route.get(
     '/gifts/search',
     describeRoute({
@@ -121,6 +131,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         }
       }
     }),
+    // validate header
     validator('header', AuthHeaderSchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -131,6 +142,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         )
       }
     }),
+    // validate query params
     validator('query', SearchRequestQuerySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -142,18 +154,24 @@ export const make = (deps: GiftsRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get token from header
       const { authorization } = c.req.valid('header')
+      // get query params
       const { input, page, sort } = c.req.valid('query')
+      // use usecase
       const result = await uniStudentsUsecase.searchGifts(authorization, input, parseInt(page), sort)
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return json data
       return c.json({
         data: result
       })
     }
   )
 
+  // claim endpoint implemenation
   route.post(
     '/gifts/claim',
     describeRoute({
@@ -186,6 +204,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         }
       }
     }),
+    // validate header
     validator('header', AuthHeaderSchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -196,6 +215,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
         )
       }
     }),
+    // validate body
     validator('json', ClaimGiftRequestSchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -207,12 +227,17 @@ export const make = (deps: GiftsRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get token from header
       const { authorization } = c.req.valid('header')
+      // get body
       const { user, gift } = c.req.valid('json')
+      // use usecase
       const result = await uniStudentsUsecase.claimGift(authorization, user.email, gift.id)
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return message
       return c.json({
         message: 'Gift claimed successfully'
       })

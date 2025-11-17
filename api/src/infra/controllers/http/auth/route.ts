@@ -13,14 +13,17 @@ import {
   UnauthorizedResponseSchema
 } from '../schemas/responses'
 
+// auth route depedencies
 interface AuthRouteDeps {
   uniStudentsUsecase: UniStudentsUsecase
 }
 
+// auth route implementation
 export const make = (deps: AuthRouteDeps): Hono => {
   const route = new Hono()
   const { uniStudentsUsecase } = deps
 
+  // sign in endpoint implementation
   route.post(
     '/sign-in',
     describeRoute({
@@ -61,6 +64,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
+    // validate request body
     validator('json', SignInRequestBodySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -72,17 +76,22 @@ export const make = (deps: AuthRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get body
       const { email, password } = await c.req.json()
+      // use usecase
       const result = await uniStudentsUsecase.authenticateUser({ email, password })
       if (isApplicationError(result)) {
+        // on error throw
         throw result
       }
+      // on success return token
       return c.json({
         token: result
       })
     }
   )
 
+  // sign up endpoint implementation
   route.post(
     '/sign-up',
     describeRoute({
@@ -115,6 +124,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
+    // validate request body
     validator('json', SignUpRequestBodySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -126,17 +136,22 @@ export const make = (deps: AuthRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get body
       const { email, password, fullName } = await c.req.json()
+      // use usecase
       const result = await uniStudentsUsecase.createUser({ email, password, fullName })
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return message
       return c.json({
         message: 'User created successfully'
       })
     }
   )
 
+  // match user endpoint implementation
   route.post(
     '/match-user',
     describeRoute({
@@ -169,6 +184,7 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
+    // validate request body
     validator('json', MatchUserRequestBodySchema, (result, c) => {
       if (!result.success) {
         return c.json(
@@ -180,17 +196,22 @@ export const make = (deps: AuthRouteDeps): Hono => {
       }
     }),
     async (c) => {
+      // get body
       const { email } = c.req.valid('json')
+      // use usecase
       const result = await uniStudentsUsecase.matchUser(email)
+      // on error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // on success return token
       return c.json({
         token: result
       })
     }
   )
 
+  // update password endpoint implementation
   route.post(
     '/update-password',
     describeRoute({
@@ -231,15 +252,21 @@ export const make = (deps: AuthRouteDeps): Hono => {
         }
       }
     }),
+    // validate request body and header
     validator('json', SignInRequestBodySchema),
     validator('header', AuthHeaderSchema),
     async (c) => {
+      // get body
       const { email, password } = c.req.valid('json')
+      // get token from header
       const { authorization } = c.req.valid('header')
+      // use usecase
       const result = await uniStudentsUsecase.updatePassword({ email, password }, authorization)
+      // if error throw
       if (isApplicationError(result)) {
         throw result
       }
+      // if success return message
       return c.json({
         message: 'Password updated successfully'
       })

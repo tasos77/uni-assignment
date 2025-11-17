@@ -1,5 +1,6 @@
 import { type Config, configSchema } from './schema'
 
+// populate config
 const config: Config = {
   server: {
     port: process.env.SERVER_PORT

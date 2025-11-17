@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Gift, User } from "~/models/common";
 
+// reactive states and variables
 const localstorage = useLocalStorage();
 const api = useApi();
 const gifts = ref<Gift[]>([]);
@@ -9,26 +10,32 @@ const user = ref<User>({
   fullName: "",
 });
 
+// claim gift states
 const claimLoading = ref(false);
 const showClaimError = ref(false);
 
+// pagination and filter variables
 const pageSize: number = 5;
 let page: number = 1;
 let totalCount: number = 0;
 let lastSearchType: "filters" | "search" = "filters";
 
+// filter criteria
 let channels: string[] = [];
 let types: string[] = [];
 let brandTitles: string[] = [];
 let category: string = "All";
 let sortBy: string = "NEW_IN";
 
+// query strings
 let queryChannels = "";
 let queryTypes = "";
 let queryBrantTitles = "";
 
+// search input
 let searchInput: string = "";
 
+// function to claim a gift
 const claimGift = (giftId: string) => {
   showClaimError.value = false;
   claimLoading.value = true;
@@ -47,6 +54,7 @@ const claimGift = (giftId: string) => {
     });
 };
 
+// function to get filtered gifts
 const getFilteredGifts = (filter: {
   flag: "channel" | "type" | "brandTitle" | "category" | "sort";
   key: string;
@@ -110,6 +118,7 @@ const getFilteredGifts = (filter: {
     });
 };
 
+// function to search gifts
 const search = (input: string) => {
   searchInput = input;
   gifts.value = [];
@@ -129,6 +138,7 @@ const search = (input: string) => {
     });
 };
 
+// infinite scroll handler
 const scroll = () => {
   window.onscroll = () => {
     let bottomOfWindow =
@@ -185,6 +195,7 @@ const scroll = () => {
   };
 };
 
+// on component mount, fetch user and initial gifts
 onMounted(async () => {
   const usersEmail = localstorage.get("uniStudentsUserEmail");
   api
@@ -221,6 +232,7 @@ onMounted(async () => {
   scroll();
 });
 
+// logout function
 const logout = () => {
   localstorage.remove("uniStudentsToken");
   localstorage.remove("uniStudentsUserEmail");
@@ -229,6 +241,7 @@ const logout = () => {
 </script>
 
 <template>
+  <!-- Header -->
   <UHeader :toggle="false">
     <template #title>
       <div class="flex items-center gap-2">
@@ -250,6 +263,7 @@ const logout = () => {
       />
     </template>
   </UHeader>
+  <!-- Main Content -->
   <UMain>
     <div class="flex justify-between items-center p-4">
       <Categories @category="getFilteredGifts" />

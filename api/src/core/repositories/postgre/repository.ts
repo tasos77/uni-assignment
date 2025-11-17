@@ -2,6 +2,7 @@ import type { ApplicationError } from '../../entities/errors/entity'
 import type { Filters, Gift } from '../../entities/gift/entity'
 import type { SignInCreds, SignUpFormData, User } from '../../entities/user/entity'
 
+// postgre repo schema
 export interface PostgreRepository {
   createUser: (formData: SignUpFormData) => Promise<boolean | ApplicationError>
   getUser: (email: string) => Promise<User | ApplicationError>

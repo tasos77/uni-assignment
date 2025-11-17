@@ -2,10 +2,12 @@
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
 import { SignUpFormDataSchema, type SignUpFormData } from "~/models/common";
 
+// page meta
 definePageMeta({
   layout: "public",
 });
 
+// form fields
 const fields: AuthFormField[] = [
   {
     name: "email",
@@ -30,19 +32,25 @@ const fields: AuthFormField[] = [
   },
 ];
 
+// reactive states
 const api = useApi();
 const showError = ref(false);
 const showSuccess = ref(false);
 const errorText = ref("");
 const loading = ref(false);
 
+// handle sign-up submission
 const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
   const { email, password, fullName } = payload.data;
   showError.value = false;
   showSuccess.value = false;
   loading.value = true;
   api
-    .signUp({ email, password, fullName })
+    .signUp({
+      email: email.trim(),
+      password: password.trim(),
+      fullName: fullName.trim(),
+    })
     .then((response) => {
       if (response.data.message) {
         loading.value = false;
@@ -61,7 +69,9 @@ const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
+    <!-- Sign Up Card -->
     <UPageCard class="w-full max-w-md">
+      <!-- Sign Up Form -->
       <UAuthForm
         :loading="loading"
         :schema="SignUpFormDataSchema"
@@ -70,11 +80,12 @@ const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
         icon="i-lucide-book-open-check"
         @submit="onSubmit"
       >
+        <!-- Footer Link -->
         <template #footer>
           Already have an account?
           <ULink to="/sign-in" class="text-primary font-medium">Sign in</ULink>.
         </template>
-
+        <!-- Validation Alerts -->
         <template #validation>
           <UAlert
             v-if="showSuccess"

@@ -2,10 +2,12 @@
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
 import { SignInCredsSchema, type SignInCreds } from "~/models/common";
 
+// page meta
 definePageMeta({
   layout: "public",
 });
 
+// form fields
 const fields: AuthFormField[] = [
   {
     name: "email",
@@ -23,18 +25,20 @@ const fields: AuthFormField[] = [
   },
 ];
 
+// reactive states
 const api = useApi();
 const localstorage = useLocalStorage();
 const showError = ref(false);
 const errorText = ref("");
 const loading = ref(false);
 
+// handle sign-in submission
 const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
   const { email, password } = payload.data;
   showError.value = false;
   loading.value = true;
   api
-    .signIn({ email, password })
+    .signIn({ email: email.trim(), password: password.trim() })
     .then((response) => {
       loading.value = false;
       localstorage.set("uniStudentsToken", response.data.token);
@@ -53,7 +57,9 @@ const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
+    <!-- Sign In Card -->
     <UPageCard class="w-full max-w-md">
+      <!-- Sign In Form -->
       <UAuthForm
         :loading="loading"
         :schema="SignInCredsSchema"
@@ -62,10 +68,12 @@ const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
         icon="i-lucide-lock"
         @submit="onSubmit"
       >
+        <!-- Footer Link -->
         <template #footer>
           Don't have an account?
           <ULink to="/sign-up" class="text-primary font-medium">Sign up</ULink>.
         </template>
+        <!-- Password Hint Link -->
         <template #password-hint>
           <ULink
             to="/forgot-password"
@@ -74,6 +82,7 @@ const onSubmit = async (payload: FormSubmitEvent<SignInCreds>) => {
             >Forgot password?</ULink
           >
         </template>
+        <!-- Validation Error Alert -->
         <template #validation v-if="showError">
           <UAlert color="error" icon="i-lucide-info" :title="errorText" />
         </template>

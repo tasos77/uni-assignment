@@ -1,6 +1,7 @@
 import type { Context, ErrorHandler } from 'hono'
 import { isApplicationError } from '../../../core/entities/errors/entity'
 
+// on error global handler
 export const onErrorHandler: ErrorHandler = async (err: unknown, c: Context) => {
   if (isApplicationError(err)) {
     if (err.details.kind === 'EntityNotFound') {

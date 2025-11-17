@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Gift, User } from "~/models/common";
-
+// define component props
 interface Props {
   gifts: Gift[];
   user: User;
@@ -8,9 +8,11 @@ interface Props {
   error: boolean;
 }
 
+// get props
 const props = defineProps<Props>();
 const emit = defineEmits(["claim"]);
 
+// function to check if gift is claimed by user
 const isClaimed = (gift: Gift) => {
   return props.user.claimedGifts?.some(
     (claimedGift) => claimedGift.id === gift.id

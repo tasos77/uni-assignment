@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { RadioGroupItem } from "@nuxt/ui";
-
+// emit events to parent component
 const emit = defineEmits(["channel", "type", "brandTitle", "sortBy"]);
 
+// filter states
 const online = ref(false);
 const instore = ref(false);
 const student_discount = ref(false);
@@ -14,6 +15,7 @@ const pizzaWorld = ref(false);
 const coffeeCentral = ref(false);
 const barHub = ref(false);
 
+// sort by options
 const sortItems = ref<RadioGroupItem[]>([
   {
     label: "New in",
@@ -24,12 +26,16 @@ const sortItems = ref<RadioGroupItem[]>([
     value: "ENDING_SOON",
   },
 ]);
+
+// starting sort by value
 const sortValue = ref("NEW_IN");
 </script>
 
 <template>
+  <!-- Sidebar -->
   <UDashboardSidebar collapsible>
     <div class="flex flex-col items-center">
+      <!---------- Filters ---------->
       <div class="text-2xl text-center mb-4">Filters</div>
       <USeparator />
       <div class="flex flex-col gap-5 mt-4 mb-4">
@@ -133,7 +139,8 @@ const sortValue = ref("NEW_IN");
           />
         </div>
       </div>
-
+      ">
+      <!---------- Sorters ---------->
       <div class="text-2xl text-center mb-4">Sort By</div>
       <USeparator />
       <URadioGroup

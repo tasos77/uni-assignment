@@ -1,7 +1,7 @@
-<script setup lang="ts"></script>
-
 <template>
+  <!-- Application Wrapper -->
   <UApp>
+    <!-- Layout and Page Rendering -->
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>

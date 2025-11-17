@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+// create config schema
 const serverSchema = z.object({
   port: z.string()
 })

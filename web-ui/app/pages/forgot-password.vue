@@ -2,19 +2,18 @@
 import type { FormSubmitEvent, AuthFormField } from "@nuxt/ui";
 import type { StepperItem } from "@nuxt/ui";
 import {
-  EmailSchema,
   MatchUserSchema,
   NewPasswordSchema,
-  PasswordSchema,
-  type Email,
   type MatchUser,
   type NewPassword,
 } from "~/models/common";
 
+// page meta
 definePageMeta({
   layout: "public",
 });
 
+// form fields
 const matchUserfield: AuthFormField[] = [
   {
     name: "email",
@@ -25,6 +24,7 @@ const matchUserfield: AuthFormField[] = [
   },
 ];
 
+// form fields
 const newPasswordFields: AuthFormField[] = [
   {
     name: "password",
@@ -35,6 +35,7 @@ const newPasswordFields: AuthFormField[] = [
   },
 ];
 
+// stepper items
 const items = [
   {
     slot: "matchUser" as const,
@@ -48,6 +49,7 @@ const items = [
   },
 ] satisfies StepperItem[];
 
+// reactive states
 const api = useApi();
 const step = ref(0);
 const matchUserError = ref(false);
@@ -56,12 +58,13 @@ const updatePasswordSucceed = ref(false);
 const oneTimeToken = ref("");
 const usersEmail = ref("");
 
+// form submit handlers
 const onMatchUserSubmit = (payload: FormSubmitEvent<MatchUser>) => {
   const { email } = payload.data;
   matchUserError.value = false;
 
   api
-    .matchUser(email)
+    .matchUser(email.trim())
     .then((response) => {
       oneTimeToken.value = response.data.token;
       usersEmail.value = email;
@@ -72,13 +75,17 @@ const onMatchUserSubmit = (payload: FormSubmitEvent<MatchUser>) => {
     });
 };
 
+// new password submit handler
 const newPasswordSubmit = (payload: FormSubmitEvent<NewPassword>) => {
   const { password } = payload.data;
   updatePasswordSucceed.value = false;
   updatePasswordError.value = false;
 
   api
-    .updatePassword({ email: usersEmail.value, password }, oneTimeToken.value)
+    .updatePassword(
+      { email: usersEmail.value.trim(), password: password.trim() },
+      oneTimeToken.value
+    )
     .then(() => {
       updatePasswordSucceed.value = true;
     })
@@ -90,8 +97,11 @@ const newPasswordSubmit = (payload: FormSubmitEvent<NewPassword>) => {
 
 <template>
   <div class="flex flex-col items-center justify-center gap-4 p-4">
+    <!-- Card container -->
     <UPageCard class="w-full max-w-md">
+      <!-- Stepper for forgot password process -->
       <UStepper :items="items" class="w-full" v-model="step" disabled>
+        <!--- Step 1: Match User Form -->
         <template #matchUser>
           <UAuthForm
             :schema="MatchUserSchema"
@@ -116,6 +126,7 @@ const newPasswordSubmit = (payload: FormSubmitEvent<NewPassword>) => {
             </template>
           </UAuthForm>
         </template>
+        <!--- Step 2: New Password Form -->
         <template #newPassword>
           <UAuthForm
             :schema="NewPasswordSchema"

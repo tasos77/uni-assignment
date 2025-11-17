@@ -1,3 +1,4 @@
+// serialize filters
 export const serializeFilters = (filters: {
   channels: string
   types: string

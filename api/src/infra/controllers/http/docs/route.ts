@@ -2,14 +2,17 @@ import { Scalar } from '@scalar/hono-api-reference'
 import { Hono } from 'hono'
 import { openAPIRouteHandler } from 'hono-openapi'
 
+// docs route dependencies schema
 interface DocsRouteDeps {
   server: Hono
 }
 
+// docs route implementation
 export const make = (deps: DocsRouteDeps): Hono => {
   const { server } = deps
   const route = new Hono()
 
+  // expose openapi
   route.get(
     '/openapi',
     openAPIRouteHandler(server, {
@@ -28,8 +31,8 @@ export const make = (deps: DocsRouteDeps): Hono => {
   route.get(
     '/docs',
     Scalar({
-      url: '/api/v1/openapi', // where your OpenAPI JSON is served
-      theme: 'default', // optional: 'default', 'alternate', 'moon', etc.
+      url: '/api/v1/openapi',
+      theme: 'default',
       pageTitle: 'UniAssignment API Docs',
       servers: [
         {

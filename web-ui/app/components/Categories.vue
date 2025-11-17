@@ -1,6 +1,11 @@
 <script setup lang="ts">
+// possivle values for category filter
 const items = ref(["All", "Pizza", "Food", "Coffee", "Bars"]);
+
+// starting category
 const category = ref("All");
+
+// emit event to parent component
 const emit = defineEmits(["category"]);
 </script>
 

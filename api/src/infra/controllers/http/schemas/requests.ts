@@ -1,5 +1,6 @@
 import { z } from 'zod'
 
+//// Request schemas ////
 export const SignInRequestBodySchema = z.object({
   email: z.email().meta({
     description: "User's email",

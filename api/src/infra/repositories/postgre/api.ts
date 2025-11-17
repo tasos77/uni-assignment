@@ -4,9 +4,12 @@ import type { Filters, Gift } from '../../../core/entities/gift/entity'
 import type { SignInCreds, SignUpFormData, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
+// items per page
 const pageSize = 5
 
+// postgre api implementation
 export const api = (db: PrismaClient, logger: Logger) => {
+  // check access to database
   const checkAccess = async (): Promise<boolean | ApplicationError> => {
     try {
       await db.$executeRaw`SELECT version();`
@@ -22,7 +25,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // search user based on email
   const searchUserBasedOnEmail = async (email: string): Promise<boolean | ApplicationError> => {
     try {
       const result = await db.user.findFirst({
@@ -47,7 +50,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // search user based on credentials
   const searchUserBasedOnCredentials = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
     const { email, password } = creds
     try {
@@ -74,7 +77,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // create user based on form data
   const createUser = async (user: SignUpFormData): Promise<boolean | ApplicationError> => {
     const { email, password, fullName } = user
     try {
@@ -96,7 +99,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // get user based on email
   const getUser = async (email: string): Promise<User | ApplicationError> => {
     try {
       const user = await db.user.findUnique({
@@ -126,7 +129,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // update user password
   const updateUser = async (creds: SignInCreds): Promise<boolean | ApplicationError> => {
     const { email, password } = creds
     try {
@@ -149,7 +152,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // claim gift by user
   const claimGift = async (email: string, giftId: string): Promise<boolean | ApplicationError> => {
     try {
       await db.user.update({
@@ -175,7 +178,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // create gifts in db
   const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
     try {
       await db.gift.createMany({
@@ -192,7 +195,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // get filtered gifts from db
   const getGifts = async (filters: Filters, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
     const where: any = {}
     const sortBy = sort === 'NEW_IN' ? { status: 'asc' } : { status: 'desc' }
@@ -228,7 +231,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
       })
     }
   }
-
+  // get searched gifts from db
   const searchGifts = async (input: string, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
     const sortBy = sort === 'NEW_IN' ? { status: 'asc' } : { status: 'desc' }
     try {

@@ -3,22 +3,27 @@ import { type ApplicationError, errors } from '../../../core/entities/errors/ent
 import type { TokenManagerService } from '../../../core/services/tokenManager/service'
 import type { Config } from '../../../infra/config/schema'
 
+// token manager service dependencies schema
 interface TokenManagerServiceDeps {
   config: Config
 }
 
+// token manager service implementation
 export const make = (deps: TokenManagerServiceDeps): TokenManagerService => {
   const { config } = deps
 
+  // init jwt config
   const secret = new TextEncoder().encode(config.jwt.jwtSecret)
   const alg = config.jwt.alg
   const options = { expiresIn: '1h' }
 
+  // create token based on email
   const createToken = async (email: string): Promise<string> => {
     const payload = { email }
     return new jose.SignJWT(payload).setProtectedHeader({ alg, exp: options.expiresIn }).sign(secret)
   }
 
+  // verify given token
   const verifyToken = async (token: string): Promise<boolean | ApplicationError> => {
     try {
       const { payload } = await jose.jwtVerify(token, secret)

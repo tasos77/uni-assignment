@@ -4,6 +4,7 @@ export interface Logger {
   error(message: string): void
 }
 
+// create logger
 export const logger: Logger = {
   info(message: string) {
     console.log(`[INFO] ${message}`)

@@ -3,10 +3,12 @@ import type { Filters, Gift } from '../../entities/gift/entity'
 import type { SignInCreds, SignUpFormData, User } from '../../entities/user/entity'
 import type { PostgreRepository } from '../../repositories/postgre/repository'
 
+// db manager depedencies schema
 export interface DBManagerServiceDeps {
   postgreRepo: PostgreRepository
 }
 
+// db manager schema
 export interface DBManagerService {
   searchUniqueUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
   searchUser: (email: string) => Promise<boolean | ApplicationError>
@@ -18,6 +20,7 @@ export interface DBManagerService {
   searchGifts: (input: string, page: number, sort: string) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
 }
 
+// db manager service implementation (propagate postgre repo functionality)
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
   const { postgreRepo } = deps
 
