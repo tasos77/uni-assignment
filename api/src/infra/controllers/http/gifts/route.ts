@@ -160,7 +160,7 @@ export const make = (deps: GiftsRouteDeps): Hono => {
       description: 'Claim gift',
       responses: {
         200: {
-          description: 'User found',
+          description: 'Gift claimed',
           content: {
             'application/json': {
               schema: resolver(ClaimGiftResponseSchema)

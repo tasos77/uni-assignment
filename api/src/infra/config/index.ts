@@ -2,7 +2,7 @@ import { type Config, configSchema } from './schema'
 
 const config: Config = {
   server: {
-    port: process.env.PORT ?? '3000'
+    port: process.env.SERVER_PORT
   },
   jwt: {
     jwtSecret: process.env.JWT_SECRET,

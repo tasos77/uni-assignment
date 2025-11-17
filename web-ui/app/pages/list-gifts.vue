@@ -16,7 +16,7 @@ let channels: string[] = [];
 let types: string[] = [];
 let brandTitles: string[] = [];
 let category: string = "All";
-let sortBy: string = "new_in";
+let sortBy: string = "NEW_IN";
 
 let queryChannels = "";
 let queryTypes = "";

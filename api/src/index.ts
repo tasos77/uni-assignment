@@ -39,10 +39,13 @@ const tokenManagerService: TokenManagerService = tmService.make({ config })
 const uniStudentsUsecase: UniStudentsUsecase = usUsecase.make({ dbManagerService, tokenManagerService })
 
 // init routes
+const checkRoute: Hono = cRoute.make()
 const authRoute: Hono = aRoute.make({ uniStudentsUsecase })
 const giftsRoute: Hono = gRoute.make({ uniStudentsUsecase })
 const userRoute: Hono = uRoute.make({ uniStudentsUsecase })
-const checkRoute: Hono = cRoute.make()
+
+// use port
+const port = Number.parseInt(config.server.port)
 
 // use routes
 const basePath = '/api/v1'
@@ -58,4 +61,9 @@ server.route(basePath, docsRoute)
 // use custom onError handler
 server.onError(onErrorHandler)
 
-export default server
+/// start server ///
+export default {
+  port: port,
+  fetch: server.fetch,
+  idleTimeout: 180
+}

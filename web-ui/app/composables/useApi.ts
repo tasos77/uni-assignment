@@ -2,10 +2,11 @@ import axios from "axios";
 import type { Email, SignInCreds, SignUpFormData } from "~/models/common";
 
 export const useApi = () => {
+  const config = useRuntimeConfig();
   const localstorage = useLocalStorage();
 
   const client = axios.create({
-    baseURL: "http://localhost:3000/api/v1/",
+    baseURL: config.public.API_BASE_URL,
   });
 
   const signIn = (creds: SignInCreds) => {
@@ -35,7 +36,7 @@ export const useApi = () => {
     types?: string,
     brandTitles?: string,
     category?: string,
-    sortBy: string = "new_in"
+    sortBy: string = "NEW_IN"
   ) => {
     return client.get(
       `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&sort=${sortBy}`,
@@ -47,7 +48,7 @@ export const useApi = () => {
     );
   };
 
-  const search = (input: string, sortBy: string = "new_in") => {
+  const search = (input: string, sortBy: string = "NEW_IN") => {
     return client.get(`/gifts/search?input=${input}&sort=${sortBy}`, {
       headers: {
         Authorization: localstorage.get("uniStudentsToken"),

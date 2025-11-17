@@ -1,7 +1,7 @@
 import type { PrismaClient } from '@prisma/client'
 import { type ApplicationError, errors } from '../../../core/entities/errors/entity'
 import type { Filters, Gift } from '../../../core/entities/gift/entity'
-import type { SignInCreds, User } from '../../../core/entities/user/entity'
+import type { SignInCreds, SignUpFormData, User } from '../../../core/entities/user/entity'
 import type { Logger } from '../../utils/logger'
 
 export const api = (db: PrismaClient, logger: Logger) => {
@@ -63,7 +63,6 @@ export const api = (db: PrismaClient, logger: Logger) => {
       }
       return true
     } catch (error) {
-      console.log(error)
       return errors.Service('Error getting user based on credentials from db', {
         type: 'External',
         system: 'PostgreSQL',
@@ -74,7 +73,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
     }
   }
 
-  const createUser = async (user: User): Promise<boolean | ApplicationError> => {
+  const createUser = async (user: SignUpFormData): Promise<boolean | ApplicationError> => {
     const { email, password, fullName } = user
     try {
       await db.user.create({
@@ -176,7 +175,6 @@ export const api = (db: PrismaClient, logger: Logger) => {
   }
 
   const createGifts = async (gifts: Gift[]): Promise<boolean | ApplicationError> => {
-    console.log(gifts)
     try {
       await db.gift.createMany({
         data: gifts
@@ -195,7 +193,7 @@ export const api = (db: PrismaClient, logger: Logger) => {
 
   const getGifts = async (filters: Filters, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
     const where: any = {}
-    const sortBy = sort === 'new_in' ? { status: 'asc' } : { status: 'desc' }
+    const sortBy = sort === 'NEW_IN' ? { status: 'asc' } : { status: 'desc' }
     if (filters.channels.length > 0) {
       where.channel = {
         in: filters.channels
