@@ -1,6 +1,6 @@
 ### uni-assignment
 ----
-This project implements a RESTful API that allows users to import and search products in an Elasticsearch instance.
+This project implements an end to end solution for users to claim gifts.
 
 ### Requirements
 - bun runtime
