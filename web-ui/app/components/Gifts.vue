@@ -23,7 +23,7 @@ const isClaimed = (gift: Gift) => {
     <UCard
       v-for="gift in props.gifts"
       :key="gift.id"
-      class="max-w-180 hover:outline-1"
+      class="max-w-180 hover:outline-1 h-min"
       :class="isClaimed(gift) ? 'hover:outline-green-500' : 'hover:outline'"
       variant="soft"
     >

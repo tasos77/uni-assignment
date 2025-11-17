@@ -20,13 +20,7 @@ services:
     depends_on:
       - db
   api:
-    build:
-      context: ./api/
-      args:
-        DATABASE_URL: ${DATABASE_URL}
-        SERVER_PORT: ${SERVER_PORT}
-        JWT_SECRET: ${JWT_SECRET}
-        ALG: ${ALG}
+    build: ./api/
     restart: always
     container_name: api
     ports:
@@ -45,6 +39,6 @@ services:
     ports:
       - 3001:3001
     environment:
-      API_BASE_URL: ${API_BASE_URL}
+      API_BASE_URL: ${NUXT_PUBLIC_API_BASE_URL}
     depends_on:
       - api

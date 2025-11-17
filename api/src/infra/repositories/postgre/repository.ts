@@ -50,12 +50,12 @@ export const make = async (deps: PostgreRepositoryDeps): Promise<PostgreReposito
     return db.searchUserBasedOnEmail(email)
   }
 
-  const getGifts = (filters: Filters, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
-    return db.getGifts(filters, sort)
+  const getGifts = (filters: Filters, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return db.getGifts(filters, page, sort)
   }
 
-  const searchGifts = (input: string, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
-    return db.searchGifts(input, sort)
+  const searchGifts = (input: string, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return db.searchGifts(input, page, sort)
   }
 
   return {

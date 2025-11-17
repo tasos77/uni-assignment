@@ -39,7 +39,15 @@ export const ClaimGiftResponseSchema = z.object({
 
 export const GiftsResponseSchema = z.object({
   data: z.object({
-    gifts: z.array(GiftSchema)
+    gifts: z.array(GiftSchema),
+    totalCount: z.number().min(0).meta({
+      description: 'Total count of requested gifts',
+      example: 10
+    }),
+    pages: z.number().min(1).meta({
+      description: 'Total pages',
+      example: 2
+    })
   })
 })
 

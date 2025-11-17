@@ -44,8 +44,10 @@ const onSubmit = async (payload: FormSubmitEvent<SignUpFormData>) => {
   api
     .signUp({ email, password, fullName })
     .then((response) => {
-      loading.value = false;
-      showSuccess.value = true;
+      if (response.data.message) {
+        loading.value = false;
+        showSuccess.value = true;
+      }
     })
     .catch((err) => {
       loading.value = false;

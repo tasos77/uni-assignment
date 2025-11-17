@@ -36,10 +36,11 @@ export const useApi = () => {
     types?: string,
     brandTitles?: string,
     category?: string,
+    page: number = 1,
     sortBy: string = "NEW_IN"
   ) => {
     return client.get(
-      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&sort=${sortBy}`,
+      `/gifts?channels=${channels}&types=${types}&brandTitles=${brandTitles}&category=${category}&page=${page}&sort=${sortBy}`,
       {
         headers: {
           Authorization: localstorage.get("uniStudentsToken"),
@@ -48,12 +49,19 @@ export const useApi = () => {
     );
   };
 
-  const search = (input: string, sortBy: string = "NEW_IN") => {
-    return client.get(`/gifts/search?input=${input}&sort=${sortBy}`, {
-      headers: {
-        Authorization: localstorage.get("uniStudentsToken"),
-      },
-    });
+  const search = (
+    input: string,
+    page: number = 1,
+    sortBy: string = "NEW_IN"
+  ) => {
+    return client.get(
+      `/gifts/search?input=${input}&page=${page}&sort=${sortBy}`,
+      {
+        headers: {
+          Authorization: localstorage.get("uniStudentsToken"),
+        },
+      }
+    );
   };
 
   const claim = (usersEmail: string, giftId: string) => {

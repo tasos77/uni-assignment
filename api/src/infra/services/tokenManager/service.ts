@@ -20,17 +20,27 @@ export const make = (deps: TokenManagerServiceDeps): TokenManagerService => {
   }
 
   const verifyToken = async (token: string): Promise<boolean | ApplicationError> => {
-    const { payload } = await jose.jwtVerify(token, secret)
-    if (payload.email) {
-      return true
+    try {
+      const { payload } = await jose.jwtVerify(token, secret)
+      if (payload.email) {
+        return true
+      }
+      return errors.Service('Invalid token', {
+        type: 'Internal',
+        serviceName: 'Token Manager Service',
+        system: 'Local',
+        reason: 'Invalid token',
+        value: 'Email not found in token payload'
+      })
+    } catch (err) {
+      return errors.Service('Invalid token', {
+        type: 'Internal',
+        serviceName: 'Token Manager Service',
+        system: 'Local',
+        reason: 'Invalid token',
+        value: 'Email not found in token payload'
+      })
     }
-    return errors.Service('Invalid token', {
-      type: 'Internal',
-      serviceName: 'Token Manager Service',
-      system: 'Local',
-      reason: 'Invalid token',
-      value: 'Email not found in token payload'
-    })
   }
 
   return { createToken, verifyToken }

@@ -33,7 +33,7 @@ export const make = (deps: DocsRouteDeps): Hono => {
       pageTitle: 'UniAssignment API Docs',
       servers: [
         {
-          url: '/api/v1',
+          url: '',
           description: 'Dev server'
         }
       ]

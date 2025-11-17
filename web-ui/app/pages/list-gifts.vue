@@ -12,6 +12,11 @@ const user = ref<User>({
 const claimLoading = ref(false);
 const showClaimError = ref(false);
 
+const pageSize: number = 5;
+let page: number = 1;
+let totalCount: number = 0;
+let lastSearchType: "filters" | "search" = "filters";
+
 let channels: string[] = [];
 let types: string[] = [];
 let brandTitles: string[] = [];
@@ -21,6 +26,8 @@ let sortBy: string = "NEW_IN";
 let queryChannels = "";
 let queryTypes = "";
 let queryBrantTitles = "";
+
+let searchInput: string = "";
 
 const claimGift = (giftId: string) => {
   showClaimError.value = false;
@@ -44,6 +51,9 @@ const getFilteredGifts = (filter: {
   flag: "channel" | "type" | "brandTitle" | "category" | "sort";
   key: string;
 }) => {
+  page = 1;
+  gifts.value = [];
+  lastSearchType = "filters";
   if (filter.flag === "channel") {
     if (channels.includes(filter.key)) {
       channels = channels.filter((item) => item !== filter.key);
@@ -75,14 +85,23 @@ const getFilteredGifts = (filter: {
     sortBy = filter.key;
   }
 
-  const queryChannels = channels.join(",");
-  const queryTypes = types.join(",");
-  const queryBrantTitles = brandTitles.join(",");
+  queryChannels = channels.join(",");
+  queryTypes = types.join(",");
+  queryBrantTitles = brandTitles.join(",");
 
   api
-    .getGifts(queryChannels, queryTypes, queryBrantTitles, category, sortBy)
+    .getGifts(
+      queryChannels,
+      queryTypes,
+      queryBrantTitles,
+      category,
+      page,
+      sortBy
+    )
     .then((response) => {
-      gifts.value = response.data.data.gifts;
+      gifts.value.push(...response.data.data.gifts);
+      totalCount = response.data.data.totalCount;
+      page = response.data.data.page;
     })
     .catch((err) => {
       if (err.response.data.error === "Invalid authorization token") {
@@ -92,16 +111,78 @@ const getFilteredGifts = (filter: {
 };
 
 const search = (input: string) => {
+  searchInput = input;
+  gifts.value = [];
+  page = 1;
+  lastSearchType = "search";
   api
-    .search(input, sortBy)
+    .search(input, page, sortBy)
     .then((response) => {
-      gifts.value = response.data.data.gifts;
+      gifts.value.push(...response.data.data.gifts);
+      totalCount = response.data.data.totalCount;
+      page = response.data.data.page;
     })
     .catch((err) => {
       if (err.response.data.error === "Invalid authorization token") {
         logout();
       }
     });
+};
+
+const scroll = () => {
+  window.onscroll = () => {
+    let bottomOfWindow =
+      Math.max(
+        window.pageYOffset,
+        document.documentElement.scrollTop,
+        document.body.scrollTop
+      ) +
+        window.innerHeight ===
+      document.documentElement.offsetHeight;
+
+    if (bottomOfWindow) {
+      if (page <= totalCount / pageSize) {
+        if (lastSearchType === "filters") {
+          lastSearchType = "filters";
+          page += 1;
+          api
+            .getGifts(
+              queryChannels,
+              queryTypes,
+              queryBrantTitles,
+              category,
+              page,
+              sortBy
+            )
+            .then((response) => {
+              gifts.value.push(...response.data.data.gifts);
+              totalCount = response.data.data.totalCount;
+              page = response.data.data.page;
+            })
+            .catch((err) => {
+              if (err.response.data.error === "Invalid authorization token") {
+                logout();
+              }
+            });
+        } else {
+          lastSearchType = "search";
+          page += 1;
+          api
+            .search(searchInput, page, sortBy)
+            .then((response) => {
+              gifts.value.push(...response.data.data.gifts);
+              totalCount = response.data.data.totalCount;
+              page = response.data.data.page;
+            })
+            .catch((err) => {
+              if (err.response.data.error === "Invalid authorization token") {
+                logout();
+              }
+            });
+        }
+      }
+    }
+  };
 };
 
 onMounted(async () => {
@@ -118,15 +199,26 @@ onMounted(async () => {
     });
 
   api
-    .getGifts(queryChannels, queryTypes, queryBrantTitles, category, sortBy)
+    .getGifts(
+      queryChannels,
+      queryTypes,
+      queryBrantTitles,
+      category,
+      page,
+      sortBy
+    )
     .then((response) => {
-      gifts.value = response.data.data.gifts;
+      gifts.value.push(...response.data.data.gifts);
+      totalCount = response.data.data.totalCount;
+      page = response.data.data.page;
     })
     .catch((err) => {
       if (err.response.data.error === "Invalid authorization token") {
         logout();
       }
     });
+
+  scroll();
 });
 
 const logout = () => {

@@ -14,8 +14,8 @@ export interface DBManagerService {
   getUser: (email: string) => Promise<User | ApplicationError>
   updateUser: (user: SignInCreds) => Promise<boolean | ApplicationError>
   claimGift: (email: string, giftId: string) => Promise<boolean | ApplicationError>
-  getGifts: (filters: Filters, sort: string) => Promise<{ gifts: Gift[] } | ApplicationError>
-  searchGifts: (input: string, sort: string) => Promise<{ gifts: Gift[] } | ApplicationError>
+  getGifts: (filters: Filters, page: number, sort: string) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
+  searchGifts: (input: string, page: number, sort: string) => Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError>
 }
 
 export const make = (deps: DBManagerServiceDeps): DBManagerService => {
@@ -45,12 +45,12 @@ export const make = (deps: DBManagerServiceDeps): DBManagerService => {
     return postgreRepo.claimGift(email, giftId)
   }
 
-  const getGifts = (filters: Filters, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
-    return postgreRepo.getGifts(filters, sort)
+  const getGifts = (filters: Filters, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return postgreRepo.getGifts(filters, page, sort)
   }
 
-  const searchGifts = (input: string, sort: string): Promise<{ gifts: Gift[] } | ApplicationError> => {
-    return postgreRepo.searchGifts(input, sort)
+  const searchGifts = (input: string, page: number, sort: string): Promise<{ gifts: Gift[]; totalCount: number; page: number } | ApplicationError> => {
+    return postgreRepo.searchGifts(input, page, sort)
   }
 
   return {
